@@ -7,6 +7,8 @@ namespace DMB0001v4
     /// </summary>
     public class BrainState
     {
+        public string BotsName { get; set; } = "DMB";
+
         public int TurnCount { get; set; } = 0;
 
         public string UsersName { get; set; } = "Talker";

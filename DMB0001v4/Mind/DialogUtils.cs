@@ -9,6 +9,8 @@ namespace DMB0001v4.Mind
     /// </summary>
     public class DialogUtils
     {
+        // TODO Add Unit Tets for those methods
+
         /// <summary>
         /// Context of current dialog.
         /// </summary>
@@ -48,7 +50,7 @@ namespace DMB0001v4.Mind
         /// <summary>
         /// Sais a benediction to user after finishing conversation.
         /// </summary>
-        /// <returns>Benedictionreturns>
+        /// <returns>Benediction</returns>
         public string Benediction()
         {
             var response = _state.SaidHi == false || (_state.SaidByeAfter == true && _state.SaidHi == true) ?
@@ -77,9 +79,9 @@ namespace DMB0001v4.Mind
         /// <summary>
         /// Inner call for method Question in order to keep param names simpler.
         /// </summary>
-        /// <param name="question">Content of the question</param>
-        /// <param name="answers">Possible answers (currently only 2 are usable)</param>
-        /// <param name="responses">Possible responses (currently only 2 are usable)</param>
+        /// <param name="theQuestion">Content of the question</param>
+        /// <param name="theAnswers">Possible answers (currently only 2 are usable)</param>
+        /// <param name="theResponses">Possible responses (currently only 2 are usable)</param>
         /// <returns>Question as a prompt</returns>
         private string TheQuestion(string theQuestion, string[] theAnswers, string[] theResponses)
         {

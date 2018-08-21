@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Threading.Tasks;
 using DMB0001v4.Mind;
 using Microsoft.Bot;
 using Microsoft.Bot.Builder;
@@ -46,6 +47,28 @@ namespace DMB0001v4
 
                 switch (lowText)
                 {
+                    case "where are you?":
+                        response = new SystemUtils().ProjectPath();
+                        break;
+
+                    case "what is your name?":
+                        response = state.BotsName;
+                        break;
+
+                    case "what is my name?":
+                        response = state.UsersName;
+                        break;
+
+                    case "read my name":
+                        response = new SystemUtils().UserName();
+                        if (!response.StartsWith("I don't ", StringComparison.Ordinal))
+                            state.UsersName = response;
+                        break;
+
+                    case "show me local pic":
+
+                        break;
+
                     case "hi":
                         response = dialogUtils.Greeting();
                         break;
