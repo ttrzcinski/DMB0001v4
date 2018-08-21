@@ -73,44 +73,14 @@ namespace DMB0001v4
                         break;
 
                     case "pancakes?":
-                        //response = "Do you like pancakces\n1) Yes\n2) No";
-                        state.RisenQuestion = true;
-                        var question = new Question
-                        {
-                            id = 1,
-                            question = "Do you like pancakces?",
-                            answers = new string[] { "Yes", "No" },
-                            responses = new string[] { "Good to know..", "I didn't get that.. so?" }
-                        };
-                        // Prepare first response
-                        StringBuilder stringBuilder = new StringBuilder(question.question);
-                        for (int i = 0; i < question.answers.Length; i++)
-                        {
-                            var answer = question.answers[i];
-                            stringBuilder.Append($"\n\t{i+1}) {answer}");
-                        }
-                        response = stringBuilder.ToString();
+                        // Prepare first response = "Do you like pancakces\n1) Yes\n2) No";
+                        response = dialogUtils.Question("Do you like pancakes?");
                         // TODO RAISE FLAG OF QUESTIONS - NEXT SENT REQUEST WILL CONTAIN THE ANSWER
                         break;
 
                     case "reset":
                         //response = "Do you want to reset counter\n1) Yes\n2) No";
-                        state.RisenQuestion = true;
-                        var question = new Question
-                        {
-                            id = 1,
-                            question = "Do you want to reset counter?",
-                            answers = new string[] { "Yes", "No" },
-                            responses = new string[] { "Counter reset..", "I didn't get that.. so?" }
-                        };
-                        // Prepare first response
-                        StringBuilder stringBuilder = new StringBuilder(question.question);
-                        for (int i = 0; i < question.answers.Length; i++)
-                        {
-                            var answer = question.answers[i];
-                            stringBuilder.Append($"\n\t{i + 1}) {answer}");
-                        }
-                        response = stringBuilder.ToString();
+                        response = dialogUtils.Question("Do you want to reset counter?", null, new string[] { "Counter reset..", "I didn't get that.. so?"});
                         // TODO RAISE FLAG OF QUESTIONS - NEXT SENT REQUEST WILL CONTAIN THE ANSWER
                         break;
 

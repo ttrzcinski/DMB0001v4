@@ -41,7 +41,7 @@ namespace DMB0001v4.Mind
             return response;
         }
 
-        public string Question(string question, string[] answers, string[] responses)
+        public string Question(string question, string[] answers = null, string[] responses = null)
         {
             return TheQuestion(question, answers, responses);
         }
