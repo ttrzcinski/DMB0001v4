@@ -1,9 +1,32 @@
-﻿using System;
+﻿using Microsoft.Bot.Builder;
+using System;
+using Microsoft.Bot.Builder.Core.Extensions;
 
 namespace DMB0001v4.Mind
 {
     public class SystemUtils
     {
+        // TODO Add Unit Tets for those methods
+
+        /// <summary>
+        /// Context of current dialog.
+        /// </summary>
+        private ITurnContext _context;
+        /// <summary>
+        /// State of currently remebered facts and knowledge.
+        /// </summary>
+        private BrainState _state;
+
+        /// <summary>
+        /// Creates new instance of Utils for calling system.
+        /// </summary>
+        /// <param name="context">current dialog context</param>
+        public SystemUtils(ITurnContext context)
+        {
+            _context = context; // TODO Maybe remove it from class variables - state is the only important one
+            _state = context.GetConversationState<BrainState>();
+        }
+
         /// <summary>
         /// Returns projects paths in safe mode.
         /// </summary>
@@ -14,14 +37,7 @@ namespace DMB0001v4.Mind
             try
             {
                 string startupPath = AppDomain.CurrentDomain.BaseDirectory;
-                if (!string.IsNullOrEmpty(startupPath))
-                {
-                    response = startupPath;
-                }
-                else
-                {
-                    response = "I don't have permissions to ask System, where am I.";
-                }
+                response = !string.IsNullOrEmpty(startupPath) ? startupPath : "I don't have permissions to ask System, where am I.";
             }
             catch (Exception exc_1)
             {
@@ -40,13 +56,10 @@ namespace DMB0001v4.Mind
             try
             {
                 string userName = System.Security.Principal.WindowsIdentity.GetCurrent().Name;
-                if (!string.IsNullOrEmpty(userName))
+                response = !string.IsNullOrEmpty(userName) ? userName : "I don't have permissions to ask System, what is your name.";
+                if (!response.StartsWith("I don't", StringComparison.Ordinal))
                 {
-                    response = userName;
-                }
-                else
-                {
-                    response = "I don't have permissions to ask System, what is your name.";
+                        _state.UsersName = response;
                 }
             }
             catch (Exception exc_1)

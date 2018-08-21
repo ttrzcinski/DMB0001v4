@@ -48,7 +48,7 @@ namespace DMB0001v4
                 switch (lowText)
                 {
                     case "where are you?":
-                        response = new SystemUtils().ProjectPath();
+                        response = new SystemUtils(context).ProjectPath();
                         break;
 
                     case "what is your name?":
@@ -60,13 +60,17 @@ namespace DMB0001v4
                         break;
 
                     case "read my name":
-                        response = new SystemUtils().UserName();
-                        if (!response.StartsWith("I don't ", StringComparison.Ordinal))
-                            state.UsersName = response;
+                        response = new SystemUtils(context).UserName();
                         break;
 
                     case "show me local pic":
-
+                        //context.Activity.Attachments.Add(new Attachment()
+                        //{
+                        //    ContentUrl = "http://aihelpwebsite.com/portals/0/Images/AIHelpWebsiteLogo_Large.png",
+                        //    ContentType = "image/png",
+                        //    Name = "AIHelpWebsiteLogo_Large.png"
+                        //});
+                        response = "Is there an image?";
                         break;
 
                     case "hi":
@@ -104,7 +108,7 @@ namespace DMB0001v4
                         // TODO save the command in storage or some resource DB
                         break;
                 }
-
+                
                 // Echo back to the user whatever they typed.
                 await context.SendActivity(response);
             }
