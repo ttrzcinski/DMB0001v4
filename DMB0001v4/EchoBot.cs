@@ -41,47 +41,23 @@ namespace DMB0001v4
                 switch (lowText)
                 {
                     case "hi":
-                        response = state.SaidHi == false || (state.SaidByeAfter == true && state.SaidHi == true) ? 
-                            "Hello You.." : 
-                            "We've already greet before..";
-                        if (state.SaidHi == false) {
-                            state.SaidHi = true;
-                            state.SaidByeAfter = false;
-                        }
+                        response = dialogUtils.Greeting();
                         break;
 
                     case "hello":
-                        response = state.SaidHi == false || (state.SaidByeAfter == true && state.SaidHi == true) ?
-                            "Hello You.." :
-                            "We've already greet before..";
-                        if (state.SaidHi == false)
-                        {
-                            state.SaidHi = true;
-                            state.SaidByeAfter = false;
-                        }
+                        response = dialogUtils.Greeting();
                         break;
 
                     case "bye":
-                        response = (state.SaidByeAfter == false && state.SaidHi == true) || state.SaidByeAfter == true ?
-                            "Bye to You.." :
-                            "We've already said bye..";
-                        if (state.SaidByeAfter == false)
-                        {
-                            state.SaidHi = false;
-                            state.SaidByeAfter = false;
-                        }
+                        response = dialogUtils.Benediction();
                         break;
 
                     case "pancakes?":
-                        // Prepare first response = "Do you like pancakces\n1) Yes\n2) No";
                         response = dialogUtils.Question("Do you like pancakes?");
-                        // TODO RAISE FLAG OF QUESTIONS - NEXT SENT REQUEST WILL CONTAIN THE ANSWER
                         break;
 
                     case "reset":
-                        //response = "Do you want to reset counter\n1) Yes\n2) No";
                         response = dialogUtils.Question("Do you want to reset counter?", null, new string[] { "Counter reset..", "I didn't get that.. so?"});
-                        // TODO RAISE FLAG OF QUESTIONS - NEXT SENT REQUEST WILL CONTAIN THE ANSWER
                         break;
 
                     default:
