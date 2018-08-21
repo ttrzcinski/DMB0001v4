@@ -4,17 +4,34 @@ using System.Text;
 
 namespace DMB0001v4.Mind
 {
+    /// <summary>
+    /// Keeps common methods and forms used in conversation, so basic dialog logic wouldn't be so long.
+    /// </summary>
     public class DialogUtils
     {
+        /// <summary>
+        /// Context of current dialog.
+        /// </summary>
         private ITurnContext _context;
+        /// <summary>
+        /// State of currently remebered facts and knowledge.
+        /// </summary>
         private BrainState _state;
 
+        /// <summary>
+        /// Creates new instance of Utils for Dialogs.
+        /// </summary>
+        /// <param name="context">current dialog context</param>
         public DialogUtils(ITurnContext context)
         {
-            _context = context;
+            _context = context; // TODO Maybe remove it from class variables - state is the only important one
             _state = context.GetConversationState<BrainState>();
         }
 
+        /// <summary>
+        /// Greets user after being greeted by user.
+        /// </summary>
+        /// <returns>Greeting</returns>
         public string Greeting()
         {
             var response = _state.SaidHi == false || (_state.SaidByeAfter == true && _state.SaidHi == true) ?
@@ -28,11 +45,15 @@ namespace DMB0001v4.Mind
             return response;
         }
 
+        /// <summary>
+        /// Sais a benediction to user after finishing conversation.
+        /// </summary>
+        /// <returns>Benedictionreturns>
         public string Benediction()
         {
             var response = _state.SaidHi == false || (_state.SaidByeAfter == true && _state.SaidHi == true) ?
                 "Hello You.." :
-                "We've already said Good Bye=..";
+                "We've already said Good Bye..";
             if (_state.SaidHi == false)
             {
                 _state.SaidHi = true;
@@ -41,11 +62,25 @@ namespace DMB0001v4.Mind
             return response;
         }
 
+        /// <summary>
+        /// Lets keep in mind currently asked question.
+        /// </summary>
+        /// <param name="question">Content of the question</param>
+        /// <param name="answers">Possible answers (currently only 2 are usable)</param>
+        /// <param name="responses">Possible responses (currently only 2 are usable)</param>
+        /// <returns>Question as a prompt</returns>
         public string Question(string question, string[] answers = null, string[] responses = null)
         {
             return TheQuestion(question, answers, responses);
         }
 
+        /// <summary>
+        /// Inner call for method Question in order to keep param names simpler.
+        /// </summary>
+        /// <param name="question">Content of the question</param>
+        /// <param name="answers">Possible answers (currently only 2 are usable)</param>
+        /// <param name="responses">Possible responses (currently only 2 are usable)</param>
+        /// <returns>Question as a prompt</returns>
         private string TheQuestion(string theQuestion, string[] theAnswers, string[] theResponses)
         {
             // Process null parameters to not nulls
@@ -71,15 +106,24 @@ namespace DMB0001v4.Mind
             return stringBuilder.ToString();
         }
 
+        /// <summary>
+        /// Given answer to currently risen question.
+        /// </summary>
+        /// <param name="answer">given answer</param>
+        /// <returns></returns>
         public string Answer(string answer)
         {
-            // TODO Check, if question was risen
+            var response = "There was no question asked.";
+            // Check, if question was risen
+            if (_state.RisenQuestion == null)
+            {
+                return response;
+            }
 
             // Fix param to not null
             answer = (answer ?? "").Trim();
             //
             // TODO check, if responses are delivered
-            var response = "..Some error just happen..";
             if (!string.IsNullOrEmpty(answer))
             {
                 for (int i = 0; i < _state.RisenQuestion.answers.Length; i++)
@@ -87,7 +131,9 @@ namespace DMB0001v4.Mind
                     var possibleAnswer = _state.RisenQuestion.answers[i].ToLower();
                     if (possibleAnswer == answer)
                     {
+                        // TODO Fix to use all the given answers
                         response = _state.RisenQuestion.responses[i == 0 ? 0 : 1];
+                        // TODO Add processing of an answer in knowledge - don't ask twice about the same
                         //_state.RisenQuestion.Processed = true;
                         _state.RisenQuestion = null;
                         break;
