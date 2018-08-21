@@ -1,4 +1,6 @@
-﻿namespace DMB0001v4
+﻿using DMB0001v4.Mind;
+
+namespace DMB0001v4
 {
     /// <summary>
     /// Class for storing conversation state as facts, notes and flags marking f.e. "This questions was already asked.". 
@@ -9,7 +11,7 @@
 
         public string UsersName { get; set; } = "Talker";
 
-        public bool RisenQuestion { get; set; }
+        public Question RisenQuestion { get; set; }
 
         public bool LikesPancakes { get; set; }
 

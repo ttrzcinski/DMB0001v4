@@ -1,5 +1,4 @@
-﻿using System.Text;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using DMB0001v4.Mind;
 using Microsoft.Bot;
 using Microsoft.Bot.Builder;
@@ -38,6 +37,13 @@ namespace DMB0001v4
                 // Prepare response - move to separate class
                 var response = "..";
 
+                if (state.RisenQuestion != null)
+                {
+                    response = dialogUtils.Answer(lowText);
+                    await context.SendActivity(response);
+                    return;
+                }
+
                 switch (lowText)
                 {
                     case "hi":
@@ -48,7 +54,15 @@ namespace DMB0001v4
                         response = dialogUtils.Greeting();
                         break;
 
+                    case "welcome":
+                        response = dialogUtils.Greeting();
+                        break;
+
                     case "bye":
+                        response = dialogUtils.Benediction();
+                        break;
+
+                    case "goodbye":
                         response = dialogUtils.Benediction();
                         break;
 
@@ -57,7 +71,9 @@ namespace DMB0001v4
                         break;
 
                     case "reset":
-                        response = dialogUtils.Question("Do you want to reset counter?", null, new string[] { "Counter reset..", "I didn't get that.. so?"});
+                        response = dialogUtils.Question("Do you want to reset counter?", 
+                            null, 
+                            new string[] { "Counter reset..", "I didn't get that.. so?"});
                         break;
 
                     default:
