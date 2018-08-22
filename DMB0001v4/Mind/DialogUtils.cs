@@ -1,7 +1,7 @@
 ﻿using DMB0001v4.Providers;
 using DMB0001v4.Resources;
 using Microsoft.Bot.Builder;
-using Microsoft.Extensions.Localization;
+//using Microsoft.Extensions.Localization;
 using System.Text;
 
 namespace DMB0001v4.Mind
@@ -11,11 +11,6 @@ namespace DMB0001v4.Mind
     /// </summary>
     public class DialogUtils
     {
-
-        // TODO Add Unit Tests for those methods
-
-        private SharedResources _localizer;
-
         /// <summary>
         /// State of currently remembered facts and knowledge.
         /// </summary>
@@ -29,11 +24,6 @@ namespace DMB0001v4.Mind
         public DialogUtils(ITurnContext context, IConversationStateProvider conversationStateProvider)
         {
             _state = conversationStateProvider.GetConversationState<BrainState>(context);
-            //
-            if (_localizer == null)
-            {
-                _localizer = new SharedResources();
-            }
         }
 
         /// <summary>
@@ -60,8 +50,8 @@ namespace DMB0001v4.Mind
         public string Valediction()
         {
             var response = _state.SaidHi == false || (_state.SaidByeAfter == true && _state.SaidHi == true) ?
-                "Goodbye." :
-                "We've already said goodbye..";
+                Phrases.response_bye_goodbye :
+                Phrases.response_bye_weve;
             if (_state.SaidHi == false)
             {
                 _state.SaidHi = true;
@@ -90,8 +80,8 @@ namespace DMB0001v4.Mind
         private string TheQuestion(string theQuestion, string[] theAnswers, string[] theResponses)
         {
             // Process null parameters to not nulls
-            theAnswers = theAnswers ?? new[] {"Yes", "No"};
-            theResponses = theResponses ?? new[] {"Good to know..", "I didn't get that.. so?"};
+            theAnswers = theAnswers ?? new[] {Phrases.btn_quest_yes, Phrases.btn_quest_no};
+            theResponses = theResponses ?? new[] {Phrases.response_after_good, Phrases.response_after_ididnt};
             // Keep question in BrainState
             var question1 = new Ask
             {
@@ -116,7 +106,7 @@ namespace DMB0001v4.Mind
         /// <returns></returns>
         public string Answer(string answer)
         {
-            var response = "There was no question asked.";
+            var response = Phrases.response_after_noquestion;
             // Check, if question was risen
             if (_state.RisenQuestion == null) return response;
             // Fix param to not null
@@ -135,7 +125,7 @@ namespace DMB0001v4.Mind
                     break;
                 }
             else
-                response = "No answer is not an answer in that case..";
+                response = Phrases.response_after_noanswer;
             return response;
         }
     }

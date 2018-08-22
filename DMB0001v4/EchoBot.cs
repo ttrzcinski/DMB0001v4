@@ -3,6 +3,7 @@ using DMB0001v4.Mind;
 using DMB0001v4.Providers;
 using Microsoft.Bot;
 using Microsoft.Bot.Builder;
+using Microsoft.Bot.Builder.Core.Extensions;
 using Microsoft.Bot.Schema;
 
 namespace DMB0001v4
@@ -43,8 +44,8 @@ namespace DMB0001v4
 
                 // Prepare response - move to separate class
                 string responseText;
-                // string responseSpeak = null;
-
+                // TODO - if ever speech will be on - string responseSpeak = null;
+                // Check, if question was asked
                 if (state.RisenQuestion != null)
                 {
                     responseText = dialogUtils.Answer(lowText);
@@ -70,14 +71,30 @@ namespace DMB0001v4
                         responseText = new SystemUtils(context, _conversationStateProvider).UserName();
                         break;
 
-                    case "show me local pic":
-                        //context.Activity.Attachments.Add(new Attachment()
-                        //{
-                        //    ContentUrl = "http://aihelpwebsite.com/portals/0/Images/AIHelpWebsiteLogo_Large.png",
-                        //    ContentType = "image/png",
-                        //    Name = "AIHelpWebsiteLogo_Large.png"
-                        //});
+                    case "show me net pic":
+                        var activity = MessageFactory.Attachment(
+                            new HeroCard(
+                                    title: "Some internet image",
+                                    images: new CardImage[] { new CardImage(url: "https://www.google.pl/images/branding/googlelogo/1x/googlelogo_color_272x92dp.png") },
+                                    buttons: new CardAction[]
+                                    {
+                                        new CardAction(title: "buy", type: ActionTypes.ImBack, value: "buy")
+                                    })
+                                .ToAttachment());
                         responseText = "Is there an image?";
+                        await context.SendActivity(activity);
+                        break;
+
+                    case "show me local pic":
+                        var activity2 = MessageFactory.Attachment(new Attachment[]
+                        {
+                            //If file is there, it works
+                            new Attachment { ContentUrl = "c:\\warn.jpg", ContentType = "image/jpg" }
+                            // TODO Change to relative path
+                            //new Attachment { ContentUrl = $"{new SystemUtils(context, _conversationStateProvider).ProjectPath()}imgs\\small-image.png", ContentType = "image/png" }//,
+                        });
+                        responseText = "Is there an image?";
+                        await context.SendActivity(activity2);
                         break;
 
                     case "hi":
