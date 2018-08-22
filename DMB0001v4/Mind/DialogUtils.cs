@@ -51,14 +51,14 @@ namespace DMB0001v4.Mind
         }
 
         /// <summary>
-        /// Sais a benediction to user after finishing conversation.
+        /// Returns a valediction to user after finishing conversation.
         /// </summary>
-        /// <returns>Benediction</returns>
-        public string Benediction()
+        /// <returns>Valediction</returns>
+        public string Valediction()
         {
             var response = _state.SaidHi == false || (_state.SaidByeAfter == true && _state.SaidHi == true) ?
-                "Hello You.." :
-                "We've already said Good Bye..";
+                "Goodbye." :
+                "We've already said goodbye..";
             if (_state.SaidHi == false)
             {
                 _state.SaidHi = true;

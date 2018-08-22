@@ -1,4 +1,4 @@
-using DMB0001v4;
+﻿using DMB0001v4;
 using Microsoft.Bot.Builder;
 using Microsoft.Bot.Schema;
 using Moq;
@@ -9,13 +9,13 @@ using DMB0001v4.Providers;
 
 namespace Units
 {
-    public class EchoBotTests
+    public class EchoBotValedictionTests
     {
         private readonly Mock<IConversationStateProvider> _conversationStateProviderMock;
         private readonly Mock<ITurnContext> _turnContextMock;
         private readonly EchoBot _echoBot;
 
-        public EchoBotTests()
+        public EchoBotValedictionTests()
         {
             //EchoBot
             _conversationStateProviderMock = new Mock<IConversationStateProvider>();
@@ -24,11 +24,13 @@ namespace Units
         }
 
         [Theory]
-        [InlineData("Hello", "Hello You..")]
-        public async Task OnTurnAsyncOnceTest(string request, string expectedResponse)
+        [InlineData("Bye", "Goodbye.")]
+        [InlineData("Goodbye", "Goodbye.")]
+        [InlineData("Farewell", "Goodbye.")]
+        public async Task OnTurn_Valediction_Async_Once_Test(string request, string expectedResponse)
         {
             // Arrange
-            var activity = new Activity{Type = ActivityTypes.Message, Text = request };
+            var activity = new Activity { Type = ActivityTypes.Message, Text = request };
             var dataStore = new MemoryStorage();
             var brainState = new BrainState();
 
@@ -41,12 +43,20 @@ namespace Units
 
             // Assert
             _turnContextMock.Verify(p => p.Activity, Times.AtLeastOnce);
-            _turnContextMock.Verify(p => p.SendActivity(expectedResponse, null, null), Times.Once);//It.IsAny<string>()
+            _turnContextMock.Verify(p => p.SendActivity(expectedResponse, null, null), Times.Once);
         }
 
         [Theory]
-        [InlineData("Hello", "Hello You..", "Hello", "We've already greet before..")]
-        public async Task OnTurnAsyncTwiceTest(string request1, string expectedResponse1, string request2, string expectedResponse2)
+        [InlineData("Bye", "Goodbye.", "Bye", "We've already said goodbye..")]
+        [InlineData("Bye", "Goodbye.", "Goodbye", "We've already said goodbye..")]
+        [InlineData("Bye", "Goodbye.", "Farewell", "We've already said goodbye..")]
+        [InlineData("Goodbye", "Goodbye.", "Bye", "We've already said goodbye..")]
+        [InlineData("Goodbye", "Goodbye.", "Goodbye", "We've already said goodbye..")]
+        [InlineData("Goodbye", "Goodbye.", "Farewell", "We've already said goodbye..")]
+        [InlineData("Farewell", "Goodbye.", "Bye", "We've already said goodbye..")]
+        [InlineData("Farewell", "Goodbye.", "Goodbye", "We've already said goodbye..")]
+        [InlineData("Farewell", "Goodbye.", "Farewell", "We've already said goodbye..")]
+        public async Task OnTurn_Valediction_Async_Twice_Test(string request1, string expectedResponse1, string request2, string expectedResponse2)
         {
             // Arrange
             var dataStore = new MemoryStorage();

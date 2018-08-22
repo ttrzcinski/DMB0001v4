@@ -94,11 +94,15 @@ namespace DMB0001v4
                         break;
 
                     case "bye":
-                        responseText = dialogUtils.Benediction();
+                        responseText = dialogUtils.Valediction();
                         break;
 
                     case "goodbye":
-                        responseText = dialogUtils.Benediction();
+                        responseText = dialogUtils.Valediction();
+                        break;
+
+                    case "farewell":
+                        responseText = dialogUtils.Valediction();
                         break;
 
                     case "pancakes?":

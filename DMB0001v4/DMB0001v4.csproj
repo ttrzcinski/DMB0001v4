@@ -13,6 +13,7 @@
 
   <ItemGroup>
     <Folder Include="Dialog\" />
+    <Folder Include="Resources\" />
   </ItemGroup>
 
 </Project>
