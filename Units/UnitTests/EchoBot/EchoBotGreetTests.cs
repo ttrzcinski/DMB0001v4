@@ -11,6 +11,13 @@ namespace Units
 {
     public class EchoBotGreetTests
     {
+        private const string str_quest_welcome = "Welcome";
+        private const string str_quest_hi = "Hi";
+        private const string str_quest_hello = "Hello";
+
+        private const string str_answ_helloyou = "Hello You..";
+        private const string str_answ_wevealready = "We've already greet before..";
+
         private readonly Mock<IConversationStateProvider> _conversationStateProviderMock;
         private readonly Mock<ITurnContext> _turnContextMock;
         private readonly EchoBot _echoBot;
@@ -24,9 +31,9 @@ namespace Units
         }
 
         [Theory]
-        [InlineData("Hello", "Hello You..")]
-        [InlineData("Hi", "Hello You..")]
-        [InlineData("Welcome", "Hello You..")]
+        [InlineData(str_quest_hello, str_answ_helloyou)]
+        [InlineData(str_quest_hi, str_answ_helloyou)]
+        [InlineData(str_quest_welcome, str_answ_helloyou)]
         public async Task OnTurn_Greeting_Async_Once_Test(string request, string expectedResponse)
         {
             // Arrange
@@ -47,15 +54,15 @@ namespace Units
         }
 
         [Theory]
-        [InlineData("Hello", "Hello You..", "Hello", "We've already greet before..")]
-        [InlineData("Hello", "Hello You..", "Hi", "We've already greet before..")]
-        [InlineData("Hello", "Hello You..", "Welcome", "We've already greet before..")]
-        [InlineData("Hi", "Hello You..", "Hello", "We've already greet before..")]
-        [InlineData("Hi", "Hello You..", "Hi", "We've already greet before..")]
-        [InlineData("Hi", "Hello You..", "Welcome", "We've already greet before..")]
-        [InlineData("Welcome", "Hello You..", "Hello", "We've already greet before..")]
-        [InlineData("Welcome", "Hello You..", "Hi", "We've already greet before..")]
-        [InlineData("Welcome", "Hello You..", "Welcome", "We've already greet before..")]
+        [InlineData(str_quest_hello, str_answ_helloyou, str_quest_hello, str_answ_wevealready)]
+        [InlineData(str_quest_hello, str_answ_helloyou, str_quest_hi, str_answ_wevealready)]
+        [InlineData(str_quest_hello, str_answ_helloyou, str_quest_welcome, str_answ_wevealready)]
+        [InlineData(str_quest_hi, str_answ_helloyou, str_quest_hello, str_answ_wevealready)]
+        [InlineData(str_quest_hi, str_answ_helloyou, str_quest_hi, str_answ_wevealready)]
+        [InlineData(str_quest_hi, str_answ_helloyou, str_quest_welcome, str_answ_wevealready)]
+        [InlineData(str_quest_welcome, str_answ_helloyou, str_quest_hello, str_answ_wevealready)]
+        [InlineData(str_quest_welcome, str_answ_helloyou, str_quest_hi, str_answ_wevealready)]
+        [InlineData(str_quest_welcome, str_answ_helloyou, str_quest_welcome, str_answ_wevealready)]
         public async Task OnTurn_Greeting_Async_Twice_Test(string request1, string expectedResponse1, string request2, string expectedResponse2)
         {
             // Arrange
