@@ -1,7 +1,10 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Globalization;
 using DMB0001v4.Providers;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Localization;
 using Microsoft.Bot.Builder.BotFramework;
 using Microsoft.Bot.Builder.Core.Extensions;
 using Microsoft.Bot.Builder.Integration.AspNet.Core;
@@ -31,9 +34,18 @@ namespace DMB0001v4
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            // Lets use mocks with context in Unit Testsand can pass brain state on side
             services.AddTransient<IConversationStateProvider, ConversationStateProvider>();
 
-            services.AddBot<EchoBot>(options =>
+            // 
+            services.AddLocalization(o => o.ResourcesPath = "Resources");
+            services.AddMvc()
+                .AddViewLocalization(
+                    Microsoft.AspNetCore.Mvc.Razor.LanguageViewLocationExpanderFormat.Suffix,
+                    opts => { opts.ResourcesPath = "Resources"; })
+                .AddDataAnnotationsLocalization();
+
+        services.AddBot<EchoBot>(options =>
             {
                 options.CredentialProvider = new ConfigurationCredentialProvider(Configuration);
 
@@ -76,6 +88,24 @@ namespace DMB0001v4
             {
                 app.UseDeveloperExceptionPage();
             }
+
+            var supportedCultures = new List<CultureInfo>
+            {
+                new CultureInfo("en-US"),
+                //new CultureInfo("ml-IN"),
+                //new CultureInfo("hi-IN")
+            };
+
+            var options = new RequestLocalizationOptions
+            {
+                DefaultRequestCulture = new RequestCulture("en-US"),
+                SupportedCultures = supportedCultures,
+                SupportedUICultures = supportedCultures,
+            };
+
+            app.UseRequestLocalization(options);
+            app.UseStaticFiles();
+            //app.UseMvcWithDefaultRoute();
 
             app.UseDefaultFiles()
                 .UseStaticFiles()

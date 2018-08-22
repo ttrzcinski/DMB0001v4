@@ -1,5 +1,7 @@
 ﻿using DMB0001v4.Providers;
+using DMB0001v4.Resources;
 using Microsoft.Bot.Builder;
+using Microsoft.Extensions.Localization;
 using System.Text;
 
 namespace DMB0001v4.Mind
@@ -9,7 +11,10 @@ namespace DMB0001v4.Mind
     /// </summary>
     public class DialogUtils
     {
+
         // TODO Add Unit Tests for those methods
+
+        private SharedResources _localizer;
 
         /// <summary>
         /// State of currently remembered facts and knowledge.
@@ -24,6 +29,11 @@ namespace DMB0001v4.Mind
         public DialogUtils(ITurnContext context, IConversationStateProvider conversationStateProvider)
         {
             _state = conversationStateProvider.GetConversationState<BrainState>(context);
+            //
+            if (_localizer == null)
+            {
+                _localizer = new SharedResources();
+            }
         }
 
         /// <summary>
@@ -32,9 +42,9 @@ namespace DMB0001v4.Mind
         /// <returns>Greeting</returns>
         public string Greeting()
         {
-            var response = _state.SaidHi == false || (_state.SaidByeAfter == true && _state.SaidHi == true) ?
-                "Hello You.." :
-                "We've already greet before..";
+            var response = _state.SaidHi == false || (_state.SaidByeAfter == true && _state.SaidHi == true)
+                ? Phrases.response_greet_hello
+                : Phrases.response_greet_weve;
             if (_state.SaidHi == false)
             {
                 _state.SaidHi = true;
