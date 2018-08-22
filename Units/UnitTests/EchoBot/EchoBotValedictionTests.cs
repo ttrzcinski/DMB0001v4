@@ -1,32 +1,39 @@
-﻿using DMB0001v4;
+﻿using System.Threading.Tasks;
+using DMB0001v4;
+using DMB0001v4.Providers;
 using Microsoft.Bot.Builder;
+using Microsoft.Bot.Builder.Core.Extensions;
 using Microsoft.Bot.Schema;
 using Moq;
 using Xunit;
-using System.Threading.Tasks;
-using Microsoft.Bot.Builder.Core.Extensions;
-using DMB0001v4.Providers;
 
-namespace Units
+namespace Units.UnitTests.EchoBot
 {
     public class EchoBotValedictionTests
-    {
+    {       
+        private const string StrQuestFarewell  = "Farewell";
+        private const string StrQuestBye = "Bye";
+        private const string StrQuestGoodbye = "Goodbye";
+
+        private const string StrAnswerGoodbye = "Goodbye";
+        private const string StrAnswerWeVeAlready = "We've already said goodbye..";
+        
         private readonly Mock<IConversationStateProvider> _conversationStateProviderMock;
         private readonly Mock<ITurnContext> _turnContextMock;
-        private readonly EchoBot _echoBot;
+        private readonly DMB0001v4.EchoBot _echoBot;
 
         public EchoBotValedictionTests()
         {
             //EchoBot
             _conversationStateProviderMock = new Mock<IConversationStateProvider>();
             _turnContextMock = new Mock<ITurnContext>();
-            _echoBot = new EchoBot(_conversationStateProviderMock.Object);
+            _echoBot = new DMB0001v4.EchoBot(_conversationStateProviderMock.Object);
         }
 
         [Theory]
-        [InlineData("Bye", "Goodbye.")]
-        [InlineData("Goodbye", "Goodbye.")]
-        [InlineData("Farewell", "Goodbye.")]
+        [InlineData(StrQuestGoodbye, StrAnswerGoodbye)]
+        [InlineData(StrQuestBye, StrAnswerGoodbye)]
+        [InlineData(StrQuestFarewell, StrAnswerGoodbye)]
         public async Task OnTurn_Valediction_Async_Once_Test(string request, string expectedResponse)
         {
             // Arrange
@@ -47,15 +54,15 @@ namespace Units
         }
 
         [Theory]
-        [InlineData("Bye", "Goodbye.", "Bye", "We've already said goodbye..")]
-        [InlineData("Bye", "Goodbye.", "Goodbye", "We've already said goodbye..")]
-        [InlineData("Bye", "Goodbye.", "Farewell", "We've already said goodbye..")]
-        [InlineData("Goodbye", "Goodbye.", "Bye", "We've already said goodbye..")]
-        [InlineData("Goodbye", "Goodbye.", "Goodbye", "We've already said goodbye..")]
-        [InlineData("Goodbye", "Goodbye.", "Farewell", "We've already said goodbye..")]
-        [InlineData("Farewell", "Goodbye.", "Bye", "We've already said goodbye..")]
-        [InlineData("Farewell", "Goodbye.", "Goodbye", "We've already said goodbye..")]
-        [InlineData("Farewell", "Goodbye.", "Farewell", "We've already said goodbye..")]
+        [InlineData(StrQuestGoodbye, StrAnswerGoodbye, StrQuestGoodbye, StrAnswerWeVeAlready)]
+        [InlineData(StrQuestGoodbye, StrAnswerGoodbye, StrQuestBye, StrAnswerWeVeAlready)]
+        [InlineData(StrQuestGoodbye, StrAnswerGoodbye, StrQuestFarewell, StrAnswerWeVeAlready)]
+        [InlineData(StrQuestBye, StrAnswerGoodbye, StrQuestGoodbye, StrAnswerWeVeAlready)]
+        [InlineData(StrQuestBye, StrAnswerGoodbye, StrQuestBye, StrAnswerWeVeAlready)]
+        [InlineData(StrQuestBye, StrAnswerGoodbye, StrQuestFarewell, StrAnswerWeVeAlready)]
+        [InlineData(StrQuestFarewell, StrAnswerGoodbye, StrQuestGoodbye, StrAnswerWeVeAlready)]
+        [InlineData(StrQuestFarewell, StrAnswerGoodbye, StrQuestBye, StrAnswerWeVeAlready)]
+        [InlineData(StrQuestFarewell, StrAnswerGoodbye, StrQuestFarewell, StrAnswerWeVeAlready)]
         public async Task OnTurn_Valediction_Async_Twice_Test(string request1, string expectedResponse1, string request2, string expectedResponse2)
         {
             // Arrange

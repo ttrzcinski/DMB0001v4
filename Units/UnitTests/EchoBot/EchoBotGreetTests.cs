@@ -1,44 +1,42 @@
+using System.Threading.Tasks;
 using DMB0001v4;
+using DMB0001v4.Providers;
 using Microsoft.Bot.Builder;
 using Microsoft.Bot.Schema;
 using Moq;
 using Xunit;
-using System.Threading.Tasks;
-using Microsoft.Bot.Builder.Core.Extensions;
-using DMB0001v4.Providers;
 
-namespace Units
+namespace Units.UnitTests.EchoBot
 {
     public class EchoBotGreetTests
     {
-        private const string str_quest_welcome = "Welcome";
-        private const string str_quest_hi = "Hi";
-        private const string str_quest_hello = "Hello";
+        private const string StrQuestWelcome  = "Welcome";
+        private const string StrQuestHi = "Hi";
+        private const string StrQuestHello = "Hello";
 
-        private const string str_answ_helloyou = "Hello You..";
-        private const string str_answ_wevealready = "We've already greet before..";
+        private const string StrAnswerHelloYou = "Hello You..";
+        private const string StrAnswerWeVeAlready = "We've already greet before..";
 
         private readonly Mock<IConversationStateProvider> _conversationStateProviderMock;
         private readonly Mock<ITurnContext> _turnContextMock;
-        private readonly EchoBot _echoBot;
+        private readonly DMB0001v4.EchoBot _echoBot;
 
         public EchoBotGreetTests()
         {
             //EchoBot
             _conversationStateProviderMock = new Mock<IConversationStateProvider>();
             _turnContextMock = new Mock<ITurnContext>();
-            _echoBot = new EchoBot(_conversationStateProviderMock.Object);
+            _echoBot = new DMB0001v4.EchoBot(_conversationStateProviderMock.Object);
         }
 
         [Theory]
-        [InlineData(str_quest_hello, str_answ_helloyou)]
-        [InlineData(str_quest_hi, str_answ_helloyou)]
-        [InlineData(str_quest_welcome, str_answ_helloyou)]
+        [InlineData(StrQuestHello, StrAnswerHelloYou)]
+        [InlineData(StrQuestHi, StrAnswerHelloYou)]
+        [InlineData(StrQuestWelcome, StrAnswerHelloYou)]
         public async Task OnTurn_Greeting_Async_Once_Test(string request, string expectedResponse)
         {
             // Arrange
             var activity = new Activity{Type = ActivityTypes.Message, Text = request };
-            var dataStore = new MemoryStorage();
             var brainState = new BrainState();
 
             _turnContextMock.Setup(p => p.Activity).Returns(activity);
@@ -54,19 +52,18 @@ namespace Units
         }
 
         [Theory]
-        [InlineData(str_quest_hello, str_answ_helloyou, str_quest_hello, str_answ_wevealready)]
-        [InlineData(str_quest_hello, str_answ_helloyou, str_quest_hi, str_answ_wevealready)]
-        [InlineData(str_quest_hello, str_answ_helloyou, str_quest_welcome, str_answ_wevealready)]
-        [InlineData(str_quest_hi, str_answ_helloyou, str_quest_hello, str_answ_wevealready)]
-        [InlineData(str_quest_hi, str_answ_helloyou, str_quest_hi, str_answ_wevealready)]
-        [InlineData(str_quest_hi, str_answ_helloyou, str_quest_welcome, str_answ_wevealready)]
-        [InlineData(str_quest_welcome, str_answ_helloyou, str_quest_hello, str_answ_wevealready)]
-        [InlineData(str_quest_welcome, str_answ_helloyou, str_quest_hi, str_answ_wevealready)]
-        [InlineData(str_quest_welcome, str_answ_helloyou, str_quest_welcome, str_answ_wevealready)]
+        [InlineData(StrQuestHello, StrAnswerHelloYou, StrQuestHello, StrAnswerWeVeAlready)]
+        [InlineData(StrQuestHello, StrAnswerHelloYou, StrQuestHi, StrAnswerWeVeAlready)]
+        [InlineData(StrQuestHello, StrAnswerHelloYou, StrQuestWelcome, StrAnswerWeVeAlready)]
+        [InlineData(StrQuestHi, StrAnswerHelloYou, StrQuestHello, StrAnswerWeVeAlready)]
+        [InlineData(StrQuestHi, StrAnswerHelloYou, StrQuestHi, StrAnswerWeVeAlready)]
+        [InlineData(StrQuestHi, StrAnswerHelloYou, StrQuestWelcome, StrAnswerWeVeAlready)]
+        [InlineData(StrQuestWelcome, StrAnswerHelloYou, StrQuestHello, StrAnswerWeVeAlready)]
+        [InlineData(StrQuestWelcome, StrAnswerHelloYou, StrQuestHi, StrAnswerWeVeAlready)]
+        [InlineData(StrQuestWelcome, StrAnswerHelloYou, StrQuestWelcome, StrAnswerWeVeAlready)]
         public async Task OnTurn_Greeting_Async_Twice_Test(string request1, string expectedResponse1, string request2, string expectedResponse2)
         {
             // Arrange
-            var dataStore = new MemoryStorage();
             var brainState = new BrainState();
 
             var turnContextMock1 = new Mock<ITurnContext>();
