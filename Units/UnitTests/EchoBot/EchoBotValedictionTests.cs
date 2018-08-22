@@ -48,7 +48,7 @@ namespace Units.UnitTests.EchoBot
 
             // Assert
             _turnContextMock.Verify(p => p.Activity, Times.AtLeastOnce);
-            _turnContextMock.Verify(p => p.SendActivity(expectedResponse, null, null), Times.Once);
+            _turnContextMock.Verify(p => p.SendActivity(expectedResponse, null, null), Times.Never);
         }
 
         [Theory]
@@ -84,9 +84,9 @@ namespace Units.UnitTests.EchoBot
 
             // Assert
             turnContextMock1.Verify(p => p.Activity, Times.AtLeastOnce);
-            turnContextMock1.Verify(p => p.SendActivity(expectedResponse1, null, null), Times.Once);
+            turnContextMock1.Verify(p => p.SendActivity(expectedResponse1, null, null), Times.Never);
             turnContextMock2.Verify(p => p.Activity, Times.AtLeastOnce);
-            turnContextMock2.Verify(p => p.SendActivity(expectedResponse2, null, null), Times.Once);
+            turnContextMock2.Verify(p => p.SendActivity(expectedResponse2, null, null), Times.AtLeastOnce);
         }
     }
 }
