@@ -148,7 +148,17 @@ namespace DMB0001v4
                         responseText = dialogUtils.Question("Do you like pancakes?");
                         break;
 
+                    case "do you like pancakes??":
+                        responseText = dialogUtils.Question("Do you like pancakes?");
+                        break;
+
                     case "reset":
+                        responseText = dialogUtils.Question("Do you want to reset counter?",
+                            null,
+                            new[] { "Counter reset..", "I didn't get that.. so?" });
+                        break;
+
+                    case "do you want to reset counter?":
                         responseText = dialogUtils.Question("Do you want to reset counter?",
                             null,
                             new[] { "Counter reset..", "I didn't get that.. so?" });
