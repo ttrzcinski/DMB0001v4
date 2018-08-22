@@ -2,7 +2,6 @@
 using DMB0001v4;
 using DMB0001v4.Providers;
 using Microsoft.Bot.Builder;
-using Microsoft.Bot.Builder.Core.Extensions;
 using Microsoft.Bot.Schema;
 using Moq;
 using Xunit;
