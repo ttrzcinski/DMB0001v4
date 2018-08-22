@@ -10,8 +10,6 @@ namespace DMB0001v4
 {
     public class EchoBot : IBot
     {
-        //private const bool speachEnabled = false;
-
         private readonly IConversationStateProvider _conversationStateProvider;
 
         public EchoBot(IConversationStateProvider conversationStateProvider)
@@ -57,7 +55,7 @@ namespace DMB0001v4
 
                 switch (lowText)
                 {
-                    case "where are you?"://ResourceManager.GetString("request_where_are_you").//
+                    case "where are you?":
                         responseText = new SystemUtils(context, _conversationStateProvider).ProjectPath();
                         break;
 

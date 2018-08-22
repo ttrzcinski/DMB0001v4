@@ -79,11 +79,20 @@ namespace DMB0001v4.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to where are you?.
+        ///   Looks up a localized string similar to Where are you?.
         /// </summary>
-        internal static string request_quest_where_are_you {
+        internal static string request_quest_whereareyou {
             get {
-                return ResourceManager.GetString("request_quest_where_are_you", resourceCulture);
+                return ResourceManager.GetString("request_quest_whereareyou", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Who are you?.
+        /// </summary>
+        internal static string request_quest_whoareyou {
+            get {
+                return ResourceManager.GetString("request_quest_whoareyou", resourceCulture);
             }
         }
         

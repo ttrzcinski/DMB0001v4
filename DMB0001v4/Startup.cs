@@ -45,7 +45,7 @@ namespace DMB0001v4
                     opts => { opts.ResourcesPath = "Resources"; })
                 .AddDataAnnotationsLocalization();
 
-        services.AddBot<EchoBot>(options =>
+            services.AddBot<EchoBot>(options =>
             {
                 options.CredentialProvider = new ConfigurationCredentialProvider(Configuration);
 
@@ -91,9 +91,7 @@ namespace DMB0001v4
 
             var supportedCultures = new List<CultureInfo>
             {
-                new CultureInfo("en-US"),
-                //new CultureInfo("ml-IN"),
-                //new CultureInfo("hi-IN")
+                new CultureInfo("en-US")
             };
 
             var options = new RequestLocalizationOptions
@@ -105,7 +103,6 @@ namespace DMB0001v4
 
             app.UseRequestLocalization(options);
             app.UseStaticFiles();
-            //app.UseMvcWithDefaultRoute();
 
             app.UseDefaultFiles()
                 .UseStaticFiles()

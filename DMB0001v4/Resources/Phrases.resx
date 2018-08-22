@@ -123,8 +123,11 @@
   <data name="btn_quest_yes" xml:space="preserve">
     <value>Yes</value>
   </data>
-  <data name="request_quest_where_are_you" xml:space="preserve">
-    <value>where are you?</value>
+  <data name="request_quest_whereareyou" xml:space="preserve">
+    <value>Where are you?</value>
+  </data>
+  <data name="request_quest_whoareyou" xml:space="preserve">
+    <value>Who are you?</value>
   </data>
   <data name="response_after_good" xml:space="preserve">
     <value>Good to know..</value>
