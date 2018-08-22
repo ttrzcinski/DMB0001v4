@@ -3,7 +3,6 @@ using DMB0001v4.Mind;
 using DMB0001v4.Providers;
 using Microsoft.Bot;
 using Microsoft.Bot.Builder;
-using Microsoft.Bot.Builder.Core.Extensions;
 using Microsoft.Bot.Schema;
 
 namespace DMB0001v4
@@ -19,7 +18,7 @@ namespace DMB0001v4
 
         /// <summary>
         /// Every Conversation turn for our EchoBot will call this method. In here
-        /// the bot checks the Activty type to verify it's a message, bumps the 
+        /// the bot checks the Activity type to verify it's a message, bumps the 
         /// turn conversation 'Turn' count, and then echoes the users typing
         /// back to them. 
         /// </summary>
@@ -33,7 +32,7 @@ namespace DMB0001v4
                 // Get the conversation state from the turn context
                 var state = _conversationStateProvider.GetConversationState<BrainState>(context);
 
-                // Create new DialogUtils to hide logic in submethods
+                // Create new DialogUtils to hide logic in sub-methods
                 var dialogUtils = new DialogUtils(context, _conversationStateProvider);
 
                 // Bump the turn count. 
@@ -43,7 +42,7 @@ namespace DMB0001v4
                 var lowText = context.Activity.Text.ToLower();
 
                 // Prepare response - move to separate class
-                var responseText = "..";
+                string responseText;
                 // string responseSpeak = null;
 
                 if (state.RisenQuestion != null)
@@ -112,7 +111,7 @@ namespace DMB0001v4
                     case "reset":
                         responseText = dialogUtils.Question("Do you want to reset counter?",
                             null,
-                            new string[] { "Counter reset..", "I didn't get that.. so?" });
+                            new[] { "Counter reset..", "I didn't get that.. so?" });
                         break;
 
                     default:

@@ -9,11 +9,11 @@ namespace DMB0001v4
     {
         public string BotsName { get; set; } = "DMB";
 
-        public int TurnCount { get; set; } = 0;
+        public int TurnCount { get; set; }
 
         public string UsersName { get; set; } = "Talker";
 
-        public Question RisenQuestion { get; set; }
+        public Ask RisenQuestion { get; set; }
 
         public bool LikesPancakes { get; set; }
 
