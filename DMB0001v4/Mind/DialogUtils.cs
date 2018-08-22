@@ -1,6 +1,8 @@
 ﻿using DMB0001v4.Providers;
 using DMB0001v4.Resources;
 using Microsoft.Bot.Builder;
+using Microsoft.Bot.Builder.Core.Extensions;
+using Microsoft.Bot.Schema;
 //using Microsoft.Extensions.Localization;
 using System.Text;
 
@@ -127,6 +129,15 @@ namespace DMB0001v4.Mind
             else
                 response = Phrases.response_after_noanswer;
             return response;
+        }
+
+        public IMessageActivity Author()
+        {
+            var activity = MessageFactory.Attachment(new Attachment[]
+            {
+                new Attachment { ContentUrl = "https://avatars2.githubusercontent.com/u/12435750?s=460&v=4", ContentType = "image/jpg" }
+            }, text: "Tomasz Trzciński <trzcinski.tomasz.1988@gmail.com>");
+            return activity;
         }
     }
 }

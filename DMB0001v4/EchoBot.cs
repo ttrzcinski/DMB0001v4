@@ -43,7 +43,9 @@ namespace DMB0001v4
                 var lowText = context.Activity.Text.ToLower();
 
                 // Prepare response - move to separate class
-                string responseText;
+                string responseText = null;
+                string responseSpeak = null;
+                IMessageActivity responseActivity = null;//IActivity
                 // TODO - if ever speech will be on - string responseSpeak = null;
                 // Check, if question was asked
                 if (state.RisenQuestion != null)
@@ -61,6 +63,18 @@ namespace DMB0001v4
 
                     case "what is your name?":
                         responseText = state.BotsName;
+                        break;
+
+                    case "who made you?":
+                        responseActivity = dialogUtils.Author();
+                        break;
+
+                    case "who created you?":
+                        responseActivity = dialogUtils.Author();
+                        break;
+
+                    case "who wrote you?":
+                        responseActivity = dialogUtils.Author();
                         break;
 
                     case "what is my name?":
@@ -86,12 +100,12 @@ namespace DMB0001v4
                         break;
 
                     case "show me net pic":
-                        var activity2 = MessageFactory.Attachment(new Attachment[]
+                        var activity22 = MessageFactory.Attachment(new Attachment[]
                         {
                             new Attachment { ContentUrl = "https://avatars2.githubusercontent.com/u/12435750?s=460&v=4", ContentType = "image/jpg" }
                         });
                         responseText = "Is there an image?";
-                        await context.SendActivity(activity2);
+                        await context.SendActivity(activity22);
                         break;
 
                     case "show me local pic":
@@ -147,7 +161,20 @@ namespace DMB0001v4
                 }
 
                 // Echo back to the user whatever they typed - responseSpeak, if not null, will be read to user
-                await context.SendActivity(responseText, null, null);//, "acceptingInput");
+                if (responseActivity != null)
+                {
+                    await context.SendActivity(responseActivity);
+                }
+                if (responseText != null) {
+                    if (responseSpeak != null)
+                    {
+                        await context.SendActivity(responseText, responseSpeak, null);//, "acceptingInput");
+                    }
+                    else
+                    {
+                        await context.SendActivity(responseText, null, null);//, "acceptingInput");
+                    }
+                }
             }
         }
     }
