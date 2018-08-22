@@ -38,7 +38,6 @@ namespace Units.UnitTests.EchoBot
         {
             // Arrange
             var activity = new Activity { Type = ActivityTypes.Message, Text = request };
-            var dataStore = new MemoryStorage();
             var brainState = new BrainState();
 
             _turnContextMock.Setup(p => p.Activity).Returns(activity);
@@ -66,7 +65,6 @@ namespace Units.UnitTests.EchoBot
         public async Task OnTurn_Valediction_Async_Twice_Test(string request1, string expectedResponse1, string request2, string expectedResponse2)
         {
             // Arrange
-            var dataStore = new MemoryStorage();
             var brainState = new BrainState();
 
             var turnContextMock1 = new Mock<ITurnContext>();
