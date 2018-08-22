@@ -1,4 +1,5 @@
-﻿using Microsoft.Bot.Builder;
+﻿using DMB0001v4.Providers;
+using Microsoft.Bot.Builder;
 using Microsoft.Bot.Builder.Core.Extensions;
 using System.Text;
 
@@ -15,6 +16,7 @@ namespace DMB0001v4.Mind
         /// Context of current dialog.
         /// </summary>
         private ITurnContext _context;
+
         /// <summary>
         /// State of currently remebered facts and knowledge.
         /// </summary>
@@ -24,10 +26,11 @@ namespace DMB0001v4.Mind
         /// Creates new instance of Utils for Dialogs.
         /// </summary>
         /// <param name="context">current dialog context</param>
-        public DialogUtils(ITurnContext context)
+        /// <param name="conversationStateProvider">provder for passing the state from context</param>>
+        public DialogUtils(ITurnContext context, IConversationStateProvider conversationStateProvider)
         {
             _context = context; // TODO Maybe remove it from class variables - state is the only important one
-            _state = context.GetConversationState<BrainState>();
+            _state = conversationStateProvider.GetConversationState<BrainState>(context);
         }
 
         /// <summary>

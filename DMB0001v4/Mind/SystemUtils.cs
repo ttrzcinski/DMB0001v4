@@ -1,6 +1,7 @@
 ﻿using Microsoft.Bot.Builder;
 using System;
 using Microsoft.Bot.Builder.Core.Extensions;
+using DMB0001v4.Providers;
 
 namespace DMB0001v4.Mind
 {
@@ -21,10 +22,11 @@ namespace DMB0001v4.Mind
         /// Creates new instance of Utils for calling system.
         /// </summary>
         /// <param name="context">current dialog context</param>
-        public SystemUtils(ITurnContext context)
+        /// <param name="conversationStateProvider">provder for passing the state from context</param>>
+        public SystemUtils(ITurnContext context, IConversationStateProvider conversationStateProvider)
         {
             _context = context; // TODO Maybe remove it from class variables - state is the only important one
-            _state = context.GetConversationState<BrainState>();
+            _state = conversationStateProvider.GetConversationState<BrainState>(context);
         }
 
         /// <summary>

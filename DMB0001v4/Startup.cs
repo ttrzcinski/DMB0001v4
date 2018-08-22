@@ -1,4 +1,5 @@
 ﻿using System;
+using DMB0001v4.Providers;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Bot.Builder.BotFramework;
@@ -30,6 +31,8 @@ namespace DMB0001v4
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddTransient<IConversationStateProvider, ConversationStateProvider>();
+
             services.AddBot<EchoBot>(options =>
             {
                 options.CredentialProvider = new ConfigurationCredentialProvider(Configuration);

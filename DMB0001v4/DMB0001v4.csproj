@@ -11,4 +11,8 @@
     <PackageReference Include="Microsoft.Bot.Builder.Integration.AspNet.Core" Version="4.0.1-preview" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Dialog\" />
+  </ItemGroup>
+
 </Project>
