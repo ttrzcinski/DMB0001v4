@@ -10,6 +10,8 @@ namespace DMB0001v4
 {
     public class EchoBot : IBot
     {
+        //private const bool speachEnabled = false;
+
         private readonly IConversationStateProvider _conversationStateProvider;
 
         public EchoBot(IConversationStateProvider conversationStateProvider)
@@ -71,7 +73,7 @@ namespace DMB0001v4
                         responseText = new SystemUtils(context, _conversationStateProvider).UserName();
                         break;
 
-                    case "show me net pic":
+                    case "show me a hero card":
                         var activity = MessageFactory.Attachment(
                             new HeroCard(
                                     title: "Some internet image",
@@ -85,16 +87,25 @@ namespace DMB0001v4
                         await context.SendActivity(activity);
                         break;
 
-                    case "show me local pic":
+                    case "show me net pic":
                         var activity2 = MessageFactory.Attachment(new Attachment[]
                         {
-                            //If file is there, it works
+                            new Attachment { ContentUrl = "https://avatars2.githubusercontent.com/u/12435750?s=460&v=4", ContentType = "image/jpg" }
+                        });
+                        responseText = "Is there an image?";
+                        await context.SendActivity(activity2);
+                        break;
+
+                    case "show me local pic":
+                        var activity3 = MessageFactory.Attachment(new Attachment[]
+                        {
+                            // If file is there, it works
                             new Attachment { ContentUrl = "c:\\warn.jpg", ContentType = "image/jpg" }
                             // TODO Change to relative path
                             //new Attachment { ContentUrl = $"{new SystemUtils(context, _conversationStateProvider).ProjectPath()}imgs\\small-image.png", ContentType = "image/png" }//,
                         });
                         responseText = "Is there an image?";
-                        await context.SendActivity(activity2);
+                        await context.SendActivity(activity3);
                         break;
 
                     case "hi":
