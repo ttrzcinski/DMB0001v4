@@ -20,6 +20,13 @@ namespace DMB0001v4.Skills
         private static SkillFactory _factory;
 
         /// <summary>
+        /// State of currently remembered facts and knowledge.
+        /// </summary>
+        private BrainState _state;
+
+        private readonly IConversationStateProvider _conversationStateProvider;
+
+        /// <summary>
         /// Serves as safety lock in creating instance of singleton.
         /// </summary>
         private static readonly object padlock = new object();
@@ -46,6 +53,29 @@ namespace DMB0001v4.Skills
             }
             return _factory;
         }
+
+        /*/// <summary>
+        /// Returns the only instance of skill factory.
+        /// </summary>
+        /// <param name="context">used context</param>
+        /// <param name="conversationStateProvider">given conversation provider to access BrainState</param>
+        /// <returns></returns>
+        public static SkillFactory GetInstance(ITurnContext context, IConversationStateProvider conversationStateProvider)
+        {
+            if (_factory == null)
+            {
+                lock (padlock)
+                {
+                    if (_factory == null)
+                    {
+                        _factory = new SkillFactory();
+                        //_factory._state = _conversationStateProvider.GetConversationState<BrainState>(context);
+                        //_conversationStateProvider = conversationStateProvider;
+                    }
+                }
+            }
+            return _factory;
+        }*/
 
         /// <summary>
         /// Returns wanted skill, if there exist one with such a name.
