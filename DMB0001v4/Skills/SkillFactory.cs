@@ -19,11 +19,6 @@ namespace DMB0001v4.Skills
         /// </summary>
         private static SkillFactory _factory;
 
-        /// <summary>
-        /// State of currently remembered facts and knowledge.
-        /// </summary>
-        private BrainState _state;
-
         private readonly IConversationStateProvider _conversationStateProvider;
 
         /// <summary>
@@ -54,29 +49,6 @@ namespace DMB0001v4.Skills
             return _factory;
         }
 
-        /*/// <summary>
-        /// Returns the only instance of skill factory.
-        /// </summary>
-        /// <param name="context">used context</param>
-        /// <param name="conversationStateProvider">given conversation provider to access BrainState</param>
-        /// <returns></returns>
-        public static SkillFactory GetInstance(ITurnContext context, IConversationStateProvider conversationStateProvider)
-        {
-            if (_factory == null)
-            {
-                lock (padlock)
-                {
-                    if (_factory == null)
-                    {
-                        _factory = new SkillFactory();
-                        //_factory._state = _conversationStateProvider.GetConversationState<BrainState>(context);
-                        //_conversationStateProvider = conversationStateProvider;
-                    }
-                }
-            }
-            return _factory;
-        }*/
-
         /// <summary>
         /// Returns wanted skill, if there exist one with such a name.
         /// </summary>
@@ -99,8 +71,12 @@ namespace DMB0001v4.Skills
                     // at this point, you can create a derived class instance
                     switch (key)
                     {
+                        // TODO if would be nice, if this would be classfiles processor on directory - not to type every single skill in factory
                         case "greetings":
                             instance = Greetings.Instance(context, conversationStateProvider);
+                            break;
+                        case "retorts":
+                            instance = Retorts.Instance(context, conversationStateProvider);
                             break;
                     }
                     //

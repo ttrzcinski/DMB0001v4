@@ -1,6 +1,5 @@
 ﻿using DMB0001v4.Providers;
 using Microsoft.Bot.Builder;
-using Microsoft.Data.OData;
 
 namespace DMB0001v4.Skills
 {
@@ -15,7 +14,7 @@ namespace DMB0001v4.Skills
         /// <param name="context">current dialog context</param>
         /// <param name="conversationStateProvider">provider for passing the state from context</param>>
         /// <returns>instance of skill</returns>
-        Greetings GetInstance(ITurnContext context, IConversationStateProvider conversationStateProvider);
+        ISkill GetInstance(ITurnContext context, IConversationStateProvider conversationStateProvider);
 
         /// <summary>
         /// Processes given request.

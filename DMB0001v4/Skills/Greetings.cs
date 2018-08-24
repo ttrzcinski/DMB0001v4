@@ -30,8 +30,7 @@ namespace DMB0001v4.Skills
         /// Bloecked empty constructors - this skills is a snigleton.
         /// </summary>
         private Greetings()
-        {
-        }
+        { }
 
         /// <summary>
         /// Creates new instance of greetings skill to process given phrase.
@@ -51,7 +50,7 @@ namespace DMB0001v4.Skills
         /// <param name="context">current dialog context</param>
         /// <param name="conversationStateProvider">provider for passing the state from context</param>>
         /// <returns>instance of greeting</returns>
-        public Greetings GetInstance(ITurnContext context, IConversationStateProvider conversationStateProvider)
+        public ISkill GetInstance(ITurnContext context, IConversationStateProvider conversationStateProvider)
         {
             return Instance(context, conversationStateProvider);
         }

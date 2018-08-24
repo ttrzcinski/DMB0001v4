@@ -6,8 +6,6 @@ namespace DMB0001v4.Mind
 {
     public class SystemUtils
     {
-        // TODO Add Unit Tests for those methods
-
         /// <summary>
         /// State of currently remembered facts and knowledge.
         /// </summary>

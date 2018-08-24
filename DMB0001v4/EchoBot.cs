@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Linq;
+using System.Net.Http;
 using System.Threading.Tasks;
 using DMB0001v4.Mind;
 using DMB0001v4.Providers;
@@ -34,6 +36,14 @@ namespace DMB0001v4
         /// for processing this conversation turn. </param>        
         public async Task OnTurn(ITurnContext context)
         {
+            /*if (imageAttachment != null)
+            {
+                using (var stream = await GetImageStream(connector, imageAttachment))
+                {
+                    return await this.captionService.GetCaptionAsync(stream);
+                }
+            }*/
+
             // This bot is only handling Messages
             if (context.Activity.Type == ActivityTypes.Message)
             {
@@ -70,6 +80,26 @@ namespace DMB0001v4
                 {
                     await context.SendActivity(responseText, null, null);
                     return;
+                }
+
+                // Check, if it's an image
+                if (context.Activity.Attachments != null && context.Activity.Attachments.Any())
+                {
+                    var imageAttachment = context.Activity.Attachments?.FirstOrDefault(a => a.ContentType.Contains("image"));
+                    if (imageAttachment != null)
+                    {
+                        responseText = "An image.. what I suppose to do with that?";
+                        var attachmentUrl = context.Activity.Attachments[0].ContentUrl;
+                        //var attachmentData = context.Activity.Attachments[0].Content;
+                        //var attachmentType = context.Activity.Attachments[0].ContentType;
+                        //if (!string.IsNullOrEmpty(attachmentUrl))
+                        //{
+                        //    var httpClient = new HttpClient();
+                        //    attachmentData = await httpClient.GetByteArrayAsync(attachmentUrl);
+                        //}
+                        await context.SendActivity(responseText, null, null);
+                        return;
+                    }
                 }
 
                 switch (lowText)
