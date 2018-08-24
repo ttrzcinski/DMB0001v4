@@ -1,12 +1,6 @@
-﻿using Microsoft.Extensions.Localization;
-using System;
-using System.Reflection;
-using System.Resources;
-
-using System.Reflection;
+﻿using System.Reflection;
 using System.Resources;
 using System.Globalization;
-using System.Text;
 using System.Threading;
 
 //[assembly: NeutralResourcesLanguage("en")]

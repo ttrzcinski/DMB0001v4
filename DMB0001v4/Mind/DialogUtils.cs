@@ -131,6 +131,10 @@ namespace DMB0001v4.Mind
             return response;
         }
 
+        /// <summary>
+        /// Shows information about the author of this bot.
+        /// </summary>
+        /// <returns>activity with infomration about author</returns>
         public IMessageActivity Author()
         {
             var activity = MessageFactory.Attachment(new Attachment[]

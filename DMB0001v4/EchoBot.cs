@@ -1,6 +1,7 @@
 ﻿using System.Threading.Tasks;
 using DMB0001v4.Mind;
 using DMB0001v4.Providers;
+using DMB0001v4.Skills;
 using Microsoft.Bot;
 using Microsoft.Bot.Builder;
 using Microsoft.Bot.Builder.Core.Extensions;
@@ -10,6 +11,8 @@ namespace DMB0001v4
 {
     public class EchoBot : IBot
     {
+        private SkillFactory _skills = SkillFactory.GetInstance();
+
         private readonly IConversationStateProvider _conversationStateProvider;
 
         public EchoBot(IConversationStateProvider conversationStateProvider)
@@ -52,6 +55,16 @@ namespace DMB0001v4
                 {
                     responseText = dialogUtils.Answer(lowText);
                     await context.SendActivity(responseText);
+                    return;
+                }
+
+                //Check, if phraase can be processed by known skills
+                //TODO Make it a factory witl pool
+                ISkill greetings = _skills.GetSkill("greetings", context, _conversationStateProvider);
+                responseText = greetings.Process(lowText);
+                if (responseText != null)
+                {
+                    await context.SendActivity(responseText, null, null);
                     return;
                 }
 
@@ -118,30 +131,6 @@ namespace DMB0001v4
                         });
                         responseText = "Is there an image?";
                         await context.SendActivity(activity3);
-                        break;
-
-                    case "hi":
-                        responseText = dialogUtils.Greeting();
-                        break;
-
-                    case "hello":
-                        responseText = dialogUtils.Greeting();
-                        break;
-
-                    case "welcome":
-                        responseText = dialogUtils.Greeting();
-                        break;
-
-                    case "bye":
-                        responseText = dialogUtils.Valediction();
-                        break;
-
-                    case "goodbye":
-                        responseText = dialogUtils.Valediction();
-                        break;
-
-                    case "farewell":
-                        responseText = dialogUtils.Valediction();
                         break;
 
                     case "pancakes?":
