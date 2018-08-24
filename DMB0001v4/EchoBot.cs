@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Threading.Tasks;
 using DMB0001v4.Mind;
 using DMB0001v4.Providers;
 using DMB0001v4.Skills;
@@ -11,6 +12,9 @@ namespace DMB0001v4
 {
     public class EchoBot : IBot
     {
+        /// <summary>
+        /// Keeps in one place all known skills.
+        /// </summary>
         private SkillFactory _skills = SkillFactory.GetInstance();
 
         private readonly IConversationStateProvider _conversationStateProvider;
@@ -58,8 +62,8 @@ namespace DMB0001v4
                     return;
                 }
 
-                //Check, if phraase can be processed by known skills
-                //TODO Make it a factory witl pool
+                // Check, if phraase can be processed by known skills
+                // TODO Change it to call  through factory's pool
                 ISkill greetings = _skills.GetSkill("greetings", context, _conversationStateProvider);
                 responseText = greetings.Process(lowText);
                 if (responseText != null)
@@ -70,8 +74,19 @@ namespace DMB0001v4
 
                 switch (lowText)
                 {
+                    case "how old are you?":
+                        DateTime dob = new DateTime(2018, 08, 28, 09, 24, 00);
+                        DateTime now = DateTime.Now;
+                        var days = Math.Ceiling(dob.Subtract(now).TotalDays);
+                        responseText = $"I'm {days} days old since {dob.ToString()}.";//21.08.2018 09.24
+                        break;
+
                     case "where are you?":
                         responseText = new SystemUtils(context, _conversationStateProvider).ProjectPath();
+                        break;
+
+                    case "who are you?":
+                        responseText = state.BotsName;
                         break;
 
                     case "what is your name?":
@@ -147,7 +162,13 @@ namespace DMB0001v4
                             new[] { "Counter reset..", "I didn't get that.. so?" });
                         break;
 
-                    case "do you want to reset counter?":
+                    case "reset counter":
+                        responseText = dialogUtils.Question("Do you want to reset counter?",
+                            null,
+                            new[] { "Counter reset..", "I didn't get that.. so?" });
+                        break;
+
+                    case "can you reset counter?":
                         responseText = dialogUtils.Question("Do you want to reset counter?",
                             null,
                             new[] { "Counter reset..", "I didn't get that.. so?" });
