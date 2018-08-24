@@ -150,6 +150,9 @@
   <data name="response_greet_hello" xml:space="preserve">
     <value>Hello You..</value>
   </data>
+  <data name="response_greet_hi" xml:space="preserve">
+    <value>hi</value>
+  </data>
   <data name="response_greet_weve" xml:space="preserve">
     <value>We've already greet before..</value>
   </data>

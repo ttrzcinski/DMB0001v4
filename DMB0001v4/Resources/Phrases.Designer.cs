@@ -160,6 +160,15 @@ namespace DMB0001v4.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to hi.
+        /// </summary>
+        internal static string response_greet_hi {
+            get {
+                return ResourceManager.GetString("response_greet_hi", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to We&apos;ve already greet before...
         /// </summary>
         internal static string response_greet_weve {

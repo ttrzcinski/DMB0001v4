@@ -1,7 +1,6 @@
 ﻿using DMB0001v4.Mind;
 using DMB0001v4.Providers;
 using Microsoft.Bot.Builder;
-using Microsoft.Data.OData;
 
 namespace DMB0001v4.Skills
 {
