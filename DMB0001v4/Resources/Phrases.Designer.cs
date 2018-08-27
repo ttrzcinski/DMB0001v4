@@ -22,7 +22,7 @@ namespace DMB0001v4.Resources {
     [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "15.0.0.0")]
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
-    internal class Phrases {
+    public class Phrases {
         
         private static global::System.Resources.ResourceManager resourceMan;
         
@@ -36,7 +36,7 @@ namespace DMB0001v4.Resources {
         ///   Returns the cached ResourceManager instance used by this class.
         /// </summary>
         [global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Advanced)]
-        internal static global::System.Resources.ResourceManager ResourceManager {
+        public static global::System.Resources.ResourceManager ResourceManager {
             get {
                 if (object.ReferenceEquals(resourceMan, null)) {
                     global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("DMB0001v4.Resources.Phrases", typeof(Phrases).Assembly);
@@ -51,7 +51,7 @@ namespace DMB0001v4.Resources {
         ///   resource lookups using this strongly typed resource class.
         /// </summary>
         [global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Advanced)]
-        internal static global::System.Globalization.CultureInfo Culture {
+        public static global::System.Globalization.CultureInfo Culture {
             get {
                 return resourceCulture;
             }
@@ -63,7 +63,7 @@ namespace DMB0001v4.Resources {
         /// <summary>
         ///   Looks up a localized string similar to No.
         /// </summary>
-        internal static string btn_quest_no {
+        public static string btn_quest_no {
             get {
                 return ResourceManager.GetString("btn_quest_no", resourceCulture);
             }
@@ -72,7 +72,7 @@ namespace DMB0001v4.Resources {
         /// <summary>
         ///   Looks up a localized string similar to Yes.
         /// </summary>
-        internal static string btn_quest_yes {
+        public static string btn_quest_yes {
             get {
                 return ResourceManager.GetString("btn_quest_yes", resourceCulture);
             }
@@ -81,7 +81,7 @@ namespace DMB0001v4.Resources {
         /// <summary>
         ///   Looks up a localized string similar to Where are you?.
         /// </summary>
-        internal static string request_quest_whereareyou {
+        public static string request_quest_whereareyou {
             get {
                 return ResourceManager.GetString("request_quest_whereareyou", resourceCulture);
             }
@@ -90,7 +90,7 @@ namespace DMB0001v4.Resources {
         /// <summary>
         ///   Looks up a localized string similar to Who are you?.
         /// </summary>
-        internal static string request_quest_whoareyou {
+        public static string request_quest_whoareyou {
             get {
                 return ResourceManager.GetString("request_quest_whoareyou", resourceCulture);
             }
@@ -99,7 +99,7 @@ namespace DMB0001v4.Resources {
         /// <summary>
         ///   Looks up a localized string similar to Good to know...
         /// </summary>
-        internal static string response_after_good {
+        public static string response_after_good {
             get {
                 return ResourceManager.GetString("response_after_good", resourceCulture);
             }
@@ -108,7 +108,7 @@ namespace DMB0001v4.Resources {
         /// <summary>
         ///   Looks up a localized string similar to I didn&apos;t get that.. so?.
         /// </summary>
-        internal static string response_after_ididnt {
+        public static string response_after_ididnt {
             get {
                 return ResourceManager.GetString("response_after_ididnt", resourceCulture);
             }
@@ -117,7 +117,7 @@ namespace DMB0001v4.Resources {
         /// <summary>
         ///   Looks up a localized string similar to No answer is not an answer in that case...
         /// </summary>
-        internal static string response_after_noanswer {
+        public static string response_after_noanswer {
             get {
                 return ResourceManager.GetString("response_after_noanswer", resourceCulture);
             }
@@ -126,7 +126,7 @@ namespace DMB0001v4.Resources {
         /// <summary>
         ///   Looks up a localized string similar to There was no question asked..
         /// </summary>
-        internal static string response_after_noquestion {
+        public static string response_after_noquestion {
             get {
                 return ResourceManager.GetString("response_after_noquestion", resourceCulture);
             }
@@ -135,7 +135,7 @@ namespace DMB0001v4.Resources {
         /// <summary>
         ///   Looks up a localized string similar to Goodbye..
         /// </summary>
-        internal static string response_bye_goodbye {
+        public static string response_bye_goodbye {
             get {
                 return ResourceManager.GetString("response_bye_goodbye", resourceCulture);
             }
@@ -144,7 +144,7 @@ namespace DMB0001v4.Resources {
         /// <summary>
         ///   Looks up a localized string similar to We&apos;ve already said goodbye...
         /// </summary>
-        internal static string response_bye_weve {
+        public static string response_bye_weve {
             get {
                 return ResourceManager.GetString("response_bye_weve", resourceCulture);
             }
@@ -153,7 +153,7 @@ namespace DMB0001v4.Resources {
         /// <summary>
         ///   Looks up a localized string similar to Hello You...
         /// </summary>
-        internal static string response_greet_hello {
+        public static string response_greet_hello {
             get {
                 return ResourceManager.GetString("response_greet_hello", resourceCulture);
             }
@@ -162,7 +162,7 @@ namespace DMB0001v4.Resources {
         /// <summary>
         ///   Looks up a localized string similar to hi.
         /// </summary>
-        internal static string response_greet_hi {
+        public static string response_greet_hi {
             get {
                 return ResourceManager.GetString("response_greet_hi", resourceCulture);
             }
@@ -171,7 +171,7 @@ namespace DMB0001v4.Resources {
         /// <summary>
         ///   Looks up a localized string similar to We&apos;ve already greet before...
         /// </summary>
-        internal static string response_greet_weve {
+        public static string response_greet_weve {
             get {
                 return ResourceManager.GetString("response_greet_weve", resourceCulture);
             }

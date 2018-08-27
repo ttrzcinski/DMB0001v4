@@ -18,6 +18,8 @@ namespace DMB0001v4
         /// </summary>
         private SkillFactory _skills;
 
+        private static BrainState _state;
+
         private readonly IConversationStateProvider _conversationStateProvider;
 
         public EchoBot(IConversationStateProvider conversationStateProvider)
@@ -47,11 +49,15 @@ namespace DMB0001v4
             if (context.Activity.Type == ActivityTypes.Message)
             {
                 // Get the conversation state from the turn context
-                var state = _conversationStateProvider.GetConversationState<BrainState>(context);
+                if (_state == null)
+                {
+                    _state = _conversationStateProvider.GetConversationState<BrainState>(context);
+                }
+
                 // Create new DialogUtils to hide logic in sub-methods
                 var dialogUtils = new DialogUtils(context, _conversationStateProvider);
                 // Bump the turn count. 
-                state.TurnCount++;
+                _state.TurnCount++;
                 // Prepare lowercase user's request
                 var lowText = context.Activity.Text.ToLower();
 
@@ -61,7 +67,7 @@ namespace DMB0001v4
                 string responseSpeak = null;
                 IMessageActivity responseActivity = null;//IActivity
                 // Check, if question was asked
-                if (state.RisenQuestion != null)
+                if (_state.RisenQuestion != null)
                 {
                     responseText = dialogUtils.Answer(lowText);
                     await context.SendActivity(responseText);
@@ -71,7 +77,7 @@ namespace DMB0001v4
                 // Check, if phraase can be processed by known skills
                 // Init skills factory to call to through common merthods
                 _skills = SkillFactory.GetInstance(context, _conversationStateProvider);
-                responseText = _skills.Process(context.Activity.Text);//Process(lowText);
+                responseText = _skills.Process(context.Activity.Text);
                 if (responseText != null)
                 {
                     await context.SendActivity(responseText, null, null);
@@ -112,11 +118,11 @@ namespace DMB0001v4
                         break;
 
                     case "who are you?":
-                        responseText = state.BotsName;
+                        responseText = _state.BotsName;
                         break;
 
                     case "what is your name?":
-                        responseText = state.BotsName;
+                        responseText = _state.BotsName;
                         break;
 
                     case "who made you?":
@@ -132,7 +138,7 @@ namespace DMB0001v4
                         break;
 
                     case "what is my name?":
-                        responseText = state.UsersName;
+                        responseText = _state.UsersName;
                         break;
 
                     case "read my name":
@@ -201,7 +207,7 @@ namespace DMB0001v4
                         break;
 
                     default:
-                        responseText = $"Turn {state.TurnCount}: I didn't get that, you said: '{context.Activity.Text}'";
+                        responseText = $"Turn {_state.TurnCount}: I didn't get that, you said: '{context.Activity.Text}'";
                         // TODO save the command in storage or some resource DB
                         break;
                 }

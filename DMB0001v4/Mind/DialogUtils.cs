@@ -54,21 +54,31 @@ namespace DMB0001v4.Mind
         {
             if (_responses == null)
             {
+                // Default for safety
+                var _defaultResponses = new Dictionary<string, string>();
+                _defaultResponses.Add("response_greet_hello", "Hello You..");
+                _defaultResponses.Add("response_greet_weve", "We've already greet before..");
+                _defaultResponses.Add("response_bye_goodbye", "Goodbye.");
+                _defaultResponses.Add("response_bye_weve", "We've already said goodbye..");
+
                 _responses = new Dictionary<string, string>();
                 try
                 {
+                    var value = Phrases.response_greet_hello;
+                    _responses.Clear();
                     _responses.Add("response_greet_hello", Phrases.response_greet_hello);
                     _responses.Add("response_greet_weve", Phrases.response_greet_weve);
                     _responses.Add("response_bye_goodbye", Phrases.response_bye_goodbye);
                     _responses.Add("response_bye_weve", Phrases.response_bye_weve);
                 }
+                catch (KeyNotFoundException keyNotFound)
+                {
+                    Console.WriteLine("Couldn't obtain Phrases through lazy - used defaults from EN.");
+                    _responses = _defaultResponses;
+                }
                 catch (Exception exception_1)
                 {
                     Console.WriteLine("Couldn't obtain Phrases - used defaults from EN.");
-                    _responses.Add("response_greet_hello", "Hello You..");
-                    _responses.Add("response_greet_weve", "We've already greet before..");
-                    _responses.Add("response_bye_goodbye", "Goodbye.");
-                    _responses.Add("response_bye_weve", "We've already said goodbye..");
                 }
             }
         }
@@ -152,7 +162,7 @@ namespace DMB0001v4.Mind
             // Prepare first response
             var stringBuilder = new StringBuilder(question1.Question);
             for (var i = 0; i < question1.Answers.Length; i++)
-                stringBuilder.Append($"\n\t{i + 1}) {question1.Answers[i]}");
+                stringBuilder.AppendLine().Append($"{i + 1}) {question1.Answers[i]}");//\n\t
             return stringBuilder.ToString();
         }
 
