@@ -57,7 +57,7 @@ namespace DMB0001v4
 
                 // Prepare response - move to separate class
                 string responseText = null;
-                // TODO - if ever speech will be on - cchangestring responseSpeak = null;
+                // TODO - if ever speech will be on - changestring responseSpeak = null;
                 string responseSpeak = null;
                 IMessageActivity responseActivity = null;//IActivity
                 // Check, if question was asked
@@ -76,12 +76,6 @@ namespace DMB0001v4
                 {
                     await context.SendActivity(responseText, null, null);
                     return;
-                }
-
-                //Check, if command comes in admin mode
-                if (lowText.StartsWith("fordsays"))
-                {
-                    // TODO Call skills.Retorts with given line
                 }
 
                 // Check, if it's an image

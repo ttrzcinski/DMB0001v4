@@ -5,8 +5,9 @@ using DMB0001v4.Providers;
 using Microsoft.Bot.Builder;
 using Newtonsoft.Json;
 using System.IO;
+using System.Text;
 using DMB0001v4.Model;
-using System.Globalization;
+using System.Text.RegularExpressions;
 
 namespace DMB0001v4.Skills
 {
@@ -21,13 +22,9 @@ namespace DMB0001v4.Skills
         protected const string COMMAND_WORD = "rzezniksays";
 
         /// <summary>
-        /// Returns current timestamp.
+        /// Locks files changing - usable in tests.
         /// </summary>
-        /// <returns>current timestamp</returns>
-        private static string Now()
-        {
-            return DateTime.Now.ToString("yyyyMMddHHmmssffff");
-        }
+        public static bool ReadOnlyFile { get; set; }
 
         /// <summary>
         /// Backups retorts file in order not to loose all those retorts.
@@ -35,13 +32,32 @@ namespace DMB0001v4.Skills
         /// <returns>true means backup was created, false otherwise</returns>
         private static bool BackupRetorts()
         {
-            // Prepare name of backup file
-            var backupPath = RetortsFullPath.Replace(".json", $"_{Now()}.json");
+            // If file lock is ON, skip making new files.
+            if (ReadOnlyFile == true) return true;
+            // Prepare catalog for the backup with backup name
+            var backupPath = RetortsFullPath
+                .Replace("Resources", "Resources\\Backups")
+                .Replace(".json", $"_{Now()}.json");
             // Copy current file to backup
             File.Copy(RetortsFullPath, backupPath);
             // Check, if file exists
             return File.Exists(backupPath);
         }
+
+        /// <summary>
+        /// Converts given wildcard to regular .* and .
+        /// </summary>
+        /// <param name="phrase"></param>
+        /// <returns>regular wildcard pattern</returns>
+        private string RegularPattern(string phrase) 
+            => string.Format("^{0}$", Regex.Escape(phrase).Replace("\\*", ".*").Replace("\\?", "."));
+
+        /// <summary>
+        /// Checks, if given phrase is a admin mode command.
+        /// </summary>
+        /// <param name="phrase">given phrase</param>
+        /// <returns>true means command, false otherwise</returns>
+        private bool IsCommand(string phrase) => Regex.IsMatch(phrase, RegularPattern($"{COMMAND_WORD}*;*"));
 
         /// <summary>
         /// Processes given request.
@@ -52,22 +68,12 @@ namespace DMB0001v4.Skills
         {
             // Check, if param has content
             if (string.IsNullOrWhiteSpace(given)) return null;
-            // Check, if it comes as admin mode command
-            if (given.StartsWith(COMMAND_WORD, StringComparison.Ordinal) && given.Trim().Length > COMMAND_WORD.Length)
-                return Process_asCommand(given);
-            // Prepare response
-            string response = null;
+            // Check, if it comes as admin mode command - Regex match to COMMAND_WORD
+            if (IsCommand(given)) return Process_asCommand(given);
             // Change to lowercase
             given = given.Trim().ToLower();
-            // TODO covert it to lambda expression
-            // response = _retorts.Find(item => item.Question.ToLower().Equals(question)).Answer;
-            foreach (var retort in _retorts)
-                if (retort.Question.ToLower().Equals(given))
-                {
-                    response = retort.Answer;
-                    break;
-                }
-            return response;
+            // If a-like retort exists, return it's answer
+            return _retorts.FirstOrDefault(r => r.Question == given)?.Answer;
         }
 
         /// <summary>
@@ -78,27 +84,106 @@ namespace DMB0001v4.Skills
         private string Process_asCommand(string given)
         {
             string response = null;
+            string key = null;
             // Check, if command has form of add retort
-            if (given.StartsWith("rzezniksays addretort ;") || given.StartsWith("rzezniksays addretort;"))
+            if (given.StartsWith("rzezniksays addretort;", StringComparison.Ordinal))
             {
+                // Process as add retort
                 var split = given.Split(";");
                 if (split.Length == 3)
-                    if (split[1].Trim().Length > 0 && split[2].Trim().Length > 0)
+                {
+                    key = split[1].Trim().ToLower();
+                    if (key.Length > 0 && split[2].Trim().Length > 0)
                     {
-                        //TODO CHECK, IF RETORT ALREADY EXISTS
-                        var result = Add(split[1].Trim().ToLower(), split[2].Trim());
-                        response = result
-                            ? $"Added new retort {split[1]}."
-                            : $"Couldn't add retort {split[1]}.";
+                        // Check, if retort already exists, else add it
+                        response = !Contains(key)
+                            ? Add(key, split[2].Trim())
+                                ? $"Added new retort {key}."
+                                : $"Couldn't add retort {key}."
+                            : $"Retort {key} already exists."
+;
                     }
                     else
                         response = "One of parameters was empty.";
+                }
                 else
                     response = "It should follow pattern: rzezniksays addretort;question;answer";
-                // TODO ADD COMMAND TO LIST ALL RETORTS
-                // TODO ADD COMMAND TO REMOVE A RETORT
+            }
+            else if (given.StartsWith("rzezniksays removeretort;", StringComparison.Ordinal))
+            {
+                // Process as remove retort
+                var split = given.Split(";");
+                if (split.Length == 2)
+                {
+                    key = split[1].Trim().ToLower();
+                    if (key.Length > 0)
+                    {
+                        // Check, if retort already with given key exists, then remove it
+                        response = Contains(key)
+                            ? (Remove(key)
+                                ? $"Removed retort {key}."
+                                : $"Couldn't remove retort {key}.")
+                            : $"Retort with key {key} doesn't exist.";
+                    }
+                    else
+                        response = "One of parameters was empty.";
+                }
+                else
+                    response = "It should follow pattern: rzezniksays addretort;question;answer";
+            }
+            else if (given.StartsWith("rzezniksays countretorts;", StringComparison.Ordinal))
+            {
+                // Process as count retorts
+                response = $"Counted known retorts: {_retorts.Count}";
+            }
+            else if (given.StartsWith("rzezniksays listretorts;", StringComparison.Ordinal))
+            {
+                // Process as list retorts
+                StringBuilder stringBuilder = new StringBuilder("Listing Known retorts: ");
+                foreach (var retort in _retorts)
+                    stringBuilder.AppendLine().Append(retort.AsStackEntry());
+                response = stringBuilder.ToString();
             }
             return response;
+        }
+
+        /// <summary>
+        /// Checks, if a retort with given key (or key-value) exists.
+        /// </summary>
+        /// <param name="key">request of retort</param>
+        /// <param name="value">(optional)response of retort</param>
+        /// <returns>true means added, false otherwise</returns>
+        private static bool Contains(string key, string value = null) => 
+            value == null ?
+                _retorts.Any(r => r.Question.Equals(key))
+                : _retorts.Any(r => r.Question.Equals(key) && r.Answer.Equals(value));
+
+        /// <summary>
+        /// Persists current state of Retorts in file.
+        /// </summary>
+        /// <returns>true means persisted, false otherwise</returns>
+        private static bool Persist()
+        {
+            // If file lock is ON, skip making new files.
+            if (ReadOnlyFile == true) return true;
+            // Prepare result var
+            bool commit = false;
+            // Backup retorts in order not to do something funky with data
+            if (BackupRetorts())
+            {
+                //Clear file of retorts
+                File.WriteAllText(RetortsFullPath, string.Empty);
+                // Opens file of retorts for edit and add it at the end
+                using (var file = File.CreateText(RetortsFullPath))
+                {
+                    var json = JsonConvert.SerializeObject(_retorts, Formatting.Indented);
+                    file.Write(json);
+                }
+                commit = true;
+            }
+            else
+                Console.WriteLine("Couldn't make a backup of retorts.");
+            return commit;
         }
 
         /// <summary>
@@ -111,39 +196,21 @@ namespace DMB0001v4.Skills
         {
             // Check, if params have content
             if (string.IsNullOrWhiteSpace(key) || string.IsNullOrWhiteSpace(value)) return false;
-            // Assures, that NPE wont happen
-            AssureRetorts();
             // Prepare return falg
             bool result = false;
             // Check previous count to confirm, that an element was added
-            int beforeCount = _retorts.Count;
-            if (!ContainsKey(key))
+            if (!Contains(key, value))
             {
                 var added = new Retort { Id = _retortsMaxId + 1, Question = key, Answer = value };
                 _retorts.Add(added);
-                result = beforeCount < _retorts.Count;
-                if (result)
+                //If persisted, commit, else rollback
+                if (Persist())
                 {
-                    // TODO Persist added value in file and in storages - if it works, move it to separate method Persist();
-                    // Backup retorts in order not to do something funky
-                    if (BackupRetorts())
-                    {
-                        //Clear file of retorts
-                        File.WriteAllText(RetortsFullPath, string.Empty);
-                        // Opens file of retorts for edit and add it at the end
-                        using (var file = File.CreateText(RetortsFullPath))
-                        {
-                            var json = JsonConvert.SerializeObject(_retorts, Formatting.Indented);
-                            file.Write(json);
-                            _retortsMaxId++;
-                        }
-                    }
-                    else
-                    {
-                        Console.WriteLine("Couldn't make a backup of retorts.");
-                    }
-                    
+                    FindMaxRetortsId();
+                    result = true;
                 }
+                else
+                    _retorts.Remove(added);
             }
             return result;
         }
@@ -151,29 +218,33 @@ namespace DMB0001v4.Skills
         /// <summary>
         /// Adds given retorts to kept set.
         /// </summary>
-        /// <param name="elements">retorts to add</param>
+        /// <param name="items">retorts to add</param>
         /// <returns>true means added, false otherwise</returns>
-        public static bool AddAll(IDictionary<string, string> elements)
+        internal static bool AddAll(List<Retort> items)
         {
-            // Assures, that NPE wont happen
-            AssureRetorts();
+            // Check, if param list has content
+            if (items == null || items.Count == 0) return false;
             // Prepare return falg
             bool result = false;
-            int beforeCount = _retorts.Count;
-            foreach (KeyValuePair<string, string> element in elements)
+            // Prepare backup list
+            var backupList = _retorts;
+            // Make list of keys - ommiting the ids
+            List<string> keys = items.Select(k => k.Question).ToList();
+            // Fix ids in given list of items
+            foreach (var item in items)
+                item.Id = ++_retortsMaxId;
+            // Remove all retors with new keys
+            int changed = _retorts.RemoveAll(r => keys.Contains(r.Question));
+            if (changed > 0)
             {
-                // Check element before adding it
-                if (!string.IsNullOrEmpty(element.Key))
-                {
-                    var added = new Retort { Id = _retortsMaxId + 1, Question = element.Key, Answer = element.Value };
-                    _retorts.Add(added);
-                }
-            }
-            result = beforeCount < _retorts.Count;
-            if (result)
-            {
-                // TODO Persist added value in file and in storages
-                result = false;
+                // Add all new keys
+                _retorts.AddRange(items);
+                // Persist the change
+                result = Persist();
+                if (result)
+                    FindMaxRetortsId();
+                else
+                    _retorts = backupList;
             }
             return result;
         }
@@ -185,69 +256,49 @@ namespace DMB0001v4.Skills
         /// <returns>true means removed, false otherwise</returns>
         public static bool Remove(string key)
         {
-            // Assures, that NPE wont happen
-            AssureRetorts();
+            // Check, if param have content
+            if (string.IsNullOrWhiteSpace(key)) return false;
             // Prepare return falg
             bool result = false;
-            // Check element before try to remove
-            if (!string.IsNullOrEmpty(key))
+            // Prepare backup list
+            var backupList = _retorts;
+            // Remove retors from list
+            int listOfRemoved = _retorts.RemoveAll(r => r.Question.Equals(key));
+            if (listOfRemoved > 0)
             {
-                int beforeCount = _retorts.Count;
-                result = ContainsKey(key);
-                for (int i = 0; i < _retorts.Count; i++)
+                // Commit, if worked, rollback otherwise
+                if (Persist())
                 {
-                    var retort = _retorts[i];
-                    if (retort.Question.Equals(key))
-                    {
-                        result = _retorts.Remove(retort);
-                    }
+                    FindMaxRetortsId();
+                    result = true;
                 }
-                int afterCount = _retorts.Count;
-                result = beforeCount > afterCount;
-                if (result)
-                {
-                    ; // TODO Persist removed value in file and in storages
-                }
+                else
+                    _retorts = backupList;
             }
-
             return result;
         }
 
-        // TODO ADD REMOVE ALL
         /// <summary>
-        /// Removed wanted list of retorts from kept set.
+        /// Removes wanted list of keys from retorts.
         /// </summary>
-        /// <param name="elements">retorts to remove</param>
-        /// <returns>true means added, false otherwise</returns>
-        public static bool RemoveAll(IDictionary<string, string> elements)
+        /// <param name="keys">retort keys to remove</param>
+        /// <returns>true means change, false otherwise</returns>
+        public static bool RemoveAll(IList<string> keys)
         {
-            // Assures, that NPE wont happen
-            AssureRetorts();
+            // Check, if param list has content
+            if (keys == null || keys.Count == 0) return false;
             // Prepare return falg
             bool result = false;
-            int beforeCount = _retorts.Count;
-            foreach (KeyValuePair<string, string> element in elements)
+            // Prepare backup list
+            var backupList = _retorts;
+            _retorts.RemoveAll(r => keys.Contains(r.Question));
+            if (Persist())
             {
-                // Check element before try to remove
-                if (!string.IsNullOrEmpty(element.Key))
-                {
-                    bool tempResult = ContainsKey(element.Key);
-                    for (int i = 0; i < _retorts.Count; i++)
-                    {
-                        var retort = _retorts[i];
-                        if (retort.Question.Equals(element.Key))
-                        {
-                           tempResult = _retorts.Remove(retort);
-                        }
-                    }
-                }
+                FindMaxRetortsId();
+                result = true;
             }
-            result = beforeCount > _retorts.Count;
-            if (result)
-            {
-                // TODO Persist removed value in file and in storages
-                result = false;
-            }
+            else
+                _retorts = backupList;
             return result;
         }
 
@@ -346,8 +397,7 @@ namespace DMB0001v4.Skills
             using (var reader = new StreamReader(RetortsFullPath))
             {
                 var json = reader.ReadToEnd();
-                var items = JsonConvert.DeserializeObject<List<Retort>>(json);
-                _retorts = items;
+                _retorts = JsonConvert.DeserializeObject<List<Retort>>(json);
 
                 // TODO: Fix the path top search from within the project
                 FindMaxRetortsId();
@@ -366,19 +416,19 @@ namespace DMB0001v4.Skills
         /// Returns top id of all retorts.
         /// </summary>
         /// <returns>top id, if there are some retorts, on null or empty returns 0</returns>
-        public int RetortsMaxId()
-        {
-            return _retortsMaxId;
-        }
+        public int RetortsMaxId() => _retortsMaxId;
+
+        /// <summary>
+        /// Returns current timestamp.
+        /// </summary>
+        /// <returns>current timestamp</returns>
+        private static string Now() => DateTime.Now.ToString("yyyyMMddHHmmssffff");
 
         /// <summary>
         /// Returns count of all kept retorts.
         /// </summary>
         /// <returns>count of all kept retorts</returns>
-        public static int GetCount()
-        {
-            return (_retorts ?? new List<Retort>()).Count;
-        }
+        public static int GetCount() => (_retorts ?? new List<Retort>()).Count;
 
         /// <summary>
         /// Clears pool of kept instances.
@@ -390,23 +440,6 @@ namespace DMB0001v4.Skills
         /// </summary>
         /// <returns>true means empty, false otherwise</returns>
         public static bool IsEmpty() => GetCount() == 0;
-
-        /// <summary>
-        /// Checks, if key is present in retorts.
-        /// </summary>
-        /// <param name="key"></param>
-        /// <returns>true means presence, false otherwise</returns>
-        public static bool ContainsKey(string key)
-        {
-            var result = false;
-            foreach (var retort in _retorts)
-                if (retort.Question.Equals(key))
-                {
-                    result = true;
-                    break;
-                }
-            return result;
-        }
 
         /// <summary>
         /// Gives short description about the skill, what it does.

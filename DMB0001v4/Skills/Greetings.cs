@@ -16,7 +16,7 @@ namespace DMB0001v4.Skills
         /// <summary>
         /// Kept utils to call right method of Greeting or Valediction.
         /// </summary>
-        private DialogUtils _dialogUtils;
+        private static DialogUtils _dialogUtils;
         /// <summary>
         /// Kept instance of skill.
         /// </summary>
@@ -41,7 +41,9 @@ namespace DMB0001v4.Skills
         {
             _state = conversationStateProvider.GetConversationState<BrainState>(context);
             // Create new DialogUtils to hide logic in sub-methods
-            _dialogUtils = new DialogUtils(context, conversationStateProvider);
+            if (_dialogUtils == null) {
+                _dialogUtils = new DialogUtils(context, conversationStateProvider);
+            }
         }
 
         /// <summary>
@@ -85,6 +87,8 @@ namespace DMB0001v4.Skills
         {
             // Check entry param
             if (string.IsNullOrWhiteSpace(given)) return null;
+            //Check, if _dialogUtils is initalized
+            if (_dialogUtils == null) return "_dialogUtils is not present.";
             // Change to lower case
             given = given.Trim().ToLower();
             // Prepare response variable

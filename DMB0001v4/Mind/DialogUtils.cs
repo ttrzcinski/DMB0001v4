@@ -3,7 +3,8 @@ using DMB0001v4.Resources;
 using Microsoft.Bot.Builder;
 using Microsoft.Bot.Builder.Core.Extensions;
 using Microsoft.Bot.Schema;
-//using Microsoft.Extensions.Localization;
+using System;
+using System.Collections.Generic;
 using System.Text;
 
 namespace DMB0001v4.Mind
@@ -18,6 +19,8 @@ namespace DMB0001v4.Mind
         /// </summary>
         private BrainState _state;
 
+        private Dictionary<string, string> _responses;
+
         /// <summary>
         /// Creates new instance of Utils for Dialogs.
         /// </summary>
@@ -26,6 +29,31 @@ namespace DMB0001v4.Mind
         public DialogUtils(ITurnContext context, IConversationStateProvider conversationStateProvider)
         {
             _state = conversationStateProvider.GetConversationState<BrainState>(context);
+            //
+            initLocalizedAnswers();
+        }
+
+        private void initLocalizedAnswers()
+        {
+            if (_responses == null)
+            {
+                _responses = new Dictionary<string, string>();
+                try
+                {
+                    _responses.Add("response_greet_hello", Phrases.response_greet_hello);
+                    _responses.Add("response_greet_weve", Phrases.response_greet_weve);
+                    _responses.Add("response_bye_goodbye", Phrases.response_bye_goodbye);
+                    _responses.Add("response_bye_weve", Phrases.response_bye_weve);
+                }
+                catch (Exception exception_1)
+                {
+                    Console.WriteLine("Couldn't obtain Phrases - used defaults from EN.");
+                    _responses.Add("response_greet_hello", "Hello You..");
+                    _responses.Add("response_greet_weve", "We've already greet before..");
+                    _responses.Add("response_bye_goodbye", "Goodbye.");
+                    _responses.Add("response_bye_weve", "We've already said goodbye..");
+                }
+            }
         }
 
         /// <summary>
@@ -34,9 +62,13 @@ namespace DMB0001v4.Mind
         /// <returns>Greeting</returns>
         public string Greeting()
         {
+            if (_state == null)
+            {
+                throw new ArgumentNullException("_state is null.");
+            }
             var response = _state.SaidHi == false || (_state.SaidByeAfter == true && _state.SaidHi == true)
-                ? Phrases.response_greet_hello
-                : Phrases.response_greet_weve;
+                ? _responses["response_greet_hello"] //Phrases.response_greet_hello
+                : _responses["response_greet_weve"]; //Phrases.response_greet_weve;
             if (_state.SaidHi == false)
             {
                 _state.SaidHi = true;
@@ -51,9 +83,9 @@ namespace DMB0001v4.Mind
         /// <returns>Valediction</returns>
         public string Valediction()
         {
-            var response = _state.SaidHi == false || (_state.SaidByeAfter == true && _state.SaidHi == true) ?
-                Phrases.response_bye_goodbye :
-                Phrases.response_bye_weve;
+            var response = _state.SaidHi == false || (_state.SaidByeAfter == true && _state.SaidHi == true)
+                ? _responses["response_bye_goodbye"] //Phrases..response_bye_goodbye
+                : _responses["response_bye_weve"]; //Phrases.response_bye_weve;
             if (_state.SaidHi == false)
             {
                 _state.SaidHi = true;

@@ -195,13 +195,12 @@ namespace Units.UnitTests.Skills
         public void ProcessTest(string given)
         {
             // Arrange
-            var factory = SkillFactory.GetInstance();
+            var factory = SkillFactory.GetInstance(_context.Object, _provider.Object);
             var brainState = new BrainState();
             _provider.Setup(p => p.GetConversationState<BrainState>(_context.Object))
                 .Returns(brainState);
 
             // Act
-            SkillFactory.Clear();
             var skill = factory.GetSkill("greetings", _context.Object, _provider.Object);
             var actual = factory.Process(given);
 

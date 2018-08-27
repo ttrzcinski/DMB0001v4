@@ -1,6 +1,8 @@
-﻿using DMB0001v4.Providers;
+﻿using System;
+using DMB0001v4.Providers;
 using Microsoft.Bot.Builder;
 using System.Collections.Generic;
+using System.Diagnostics.Contracts;
 
 namespace DMB0001v4.Skills
 {
@@ -13,7 +15,8 @@ namespace DMB0001v4.Skills
         /// Returns the only instance of skill factory.
         /// </summary>
         /// <returns></returns>
-        public static SkillFactory GetInstance(ITurnContext context, IConversationStateProvider conversationStateProvider)
+        public static SkillFactory GetInstance(ITurnContext context,
+            IConversationStateProvider conversationStateProvider)
         {
             if (_factory == null)
             {
@@ -26,7 +29,7 @@ namespace DMB0001v4.Skills
                     // Check, if skill set is empty
                     if (_skills.Count == 0)
                     {
-                        var knownSkills = new[] { "greetings", "retorts"};//, "questions" };
+                        var knownSkills = new[] {"greetings", "retorts"}; //, "questions" };
                         var greetingInstance = Greetings.Instance(context, conversationStateProvider);
                         var retortsInstance = Retorts.Instance(context, conversationStateProvider);
                         //var questionsInstance = Questions.Instance(context, conversationStateProvider);
@@ -37,8 +40,11 @@ namespace DMB0001v4.Skills
                     }
                 }
             }
+
             return _factory;
         }
+
+        public static SkillFactory GetInstance() => _factory;
 
         /// <summary>
         /// Returns wanted skill, if there exist one with such a name.
@@ -117,6 +123,9 @@ namespace DMB0001v4.Skills
         /// <returns>response, if some responded, null otherwise</returns>
         public string Process(string toProcess)
         {
+            //
+            if (string.IsNullOrWhiteSpace(toProcess)) return null;
+            //
             string response = null;
             // Loop through all known skills, until some will respond.
             foreach (KeyValuePair<string, ISkill> skill in _skills)

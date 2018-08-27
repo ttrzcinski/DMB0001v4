@@ -24,6 +24,7 @@ namespace Units.UnitTests.Skills
             _provider.Setup(p => p.GetConversationState<BrainState>(_context.Object))
                 .Returns(brainState);
             var retorts = Retorts.Instance(_context.Object, _provider.Object);
+            Retorts.ReadOnlyFile = true;
         }
 
         // Cover get instance, if there was none
@@ -88,8 +89,8 @@ namespace Units.UnitTests.Skills
             var brainState = new BrainState();
             _provider.Setup(p => p.GetConversationState<BrainState>(_context.Object))
                 .Returns(brainState);
+            var skills = SkillFactory.GetInstance(_context.Object, _provider.Object);
             var retorts = SkillFactory.GetInstance().GetSkill("retorts", _context.Object, _provider.Object);
-            //var retorts = //Retorts.Instance(_context.Object, _provider.Object);
             // TODO add call to load retorts from file
             var resultOfAdd = Retorts.Add("hi", "hello");
 
