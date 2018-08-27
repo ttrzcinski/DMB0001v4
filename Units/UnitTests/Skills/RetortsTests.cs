@@ -16,9 +16,14 @@ namespace Units.UnitTests.Skills
         {
             _provider = new Mock<IConversationStateProvider>();
             _context = new Mock<ITurnContext>();
-            //var brainState = new BrainState();
-            //_provider.Setup(p => p.GetConversationState<BrainState>(_context.Object))
-            //    .Returns(brainState);
+        }
+
+        private void ArrangeByDefault()
+        {
+            var brainState = new BrainState();
+            _provider.Setup(p => p.GetConversationState<BrainState>(_context.Object))
+                .Returns(brainState);
+            var retorts = Retorts.Instance(_context.Object, _provider.Object);
         }
 
         // Cover get instance, if there was none
@@ -102,10 +107,7 @@ namespace Units.UnitTests.Skills
         public void ClearEmptyTest()
         {
             // Arrange
-            var brainState = new BrainState();
-            _provider.Setup(p => p.GetConversationState<BrainState>(_context.Object))
-                .Returns(brainState);
-            var retorts = Retorts.Instance(_context.Object, _provider.Object);
+            ArrangeByDefault();
 
             // Act
             Retorts.Clear();
@@ -119,10 +121,7 @@ namespace Units.UnitTests.Skills
         public void ClearFullTest()
         {
             // Arrange
-            var brainState = new BrainState();
-            _provider.Setup(p => p.GetConversationState<BrainState>(_context.Object))
-                .Returns(brainState);
-            var retorts = Retorts.Instance(_context.Object, _provider.Object);
+            ArrangeByDefault();
             // TODO add call to load retorts from file
 
             // Act
@@ -138,13 +137,10 @@ namespace Units.UnitTests.Skills
         {
             // Arrange
             var expected = 0;
-            var brainState = new BrainState();
-            _provider.Setup(p => p.GetConversationState<BrainState>(_context.Object))
-                .Returns(brainState);
-            var retorts = Retorts.Instance(_context.Object, _provider.Object);
+            ArrangeByDefault();
 
             // Act
-            var actual = Retorts.Count;
+            var actual = Retorts.GetCount();
 
             // Assert
             Assert.Equal(expected, actual);
@@ -155,22 +151,19 @@ namespace Units.UnitTests.Skills
         public void ClearCountAfterLoadTest()
         {
             // Arrange
-            var brainState = new BrainState();
-            _provider.Setup(p => p.GetConversationState<BrainState>(_context.Object))
-                .Returns(brainState);
-            var retorts = Retorts.Instance(_context.Object, _provider.Object);
+            ArrangeByDefault();
             // TODO add call to load retorts from file
             Retorts.Add("test_1", "test_val_1");
 
             // Act
-            var actual = Retorts.Count;
+            var actual = Retorts.GetCount();
             Retorts.Remove("test_1");
 
             // Assert
             Assert.True(actual > 0);
         }
 
-        // TODO COVER ADD null, empty, wrong with empty key, wrong with empty value, proper with non-existing key, proper with existing key
+        // COVER ADD null, empty, wrong with empty key, wrong with empty value, proper with non-existing key, proper with existing key
         [Theory]
         [InlineData(null, null, false)]
         [InlineData(null, "", false)]
@@ -191,15 +184,12 @@ namespace Units.UnitTests.Skills
         public void AddTest(string given_key, string given_value, bool expected)
         {
             // Arrange
-            var brainState = new BrainState();
-            _provider.Setup(p => p.GetConversationState<BrainState>(_context.Object))
-                .Returns(brainState);
-            var retorts = Retorts.Instance(_context.Object, _provider.Object);
+            ArrangeByDefault();
 
             // Act
             Retorts.Clear();
             var actual = Retorts.Add(given_key, given_value);
-            Retorts.Remove(given_key);
+            Retorts.Clear();
 
             // Assert
             Assert.Equal(expected, actual);
@@ -208,6 +198,36 @@ namespace Units.UnitTests.Skills
         // TODO COVER ADDAll null, empty, wrong with empty key, wrong with empty value, proper with non-existing key, proper with existing key
 
         // TODO COVER REMOVE null, empty, wrong with empty key, wrong with empty value, proper with non-existing key, proper with existing key
+        [Theory]
+        [InlineData(null, null, false)]
+        [InlineData(null, "", false)]
+        [InlineData(null, "  ", false)]
+        [InlineData(null, "val1", false)]
+        [InlineData("", "", false)]
+        [InlineData("", null, false)]
+        [InlineData("", "  ", false)]
+        [InlineData("", "val1", false)]
+        [InlineData("  ", null, false)]
+        [InlineData("  ", "", false)]
+        [InlineData("  ", "  ", false)]
+        [InlineData("  ", "val1", false)]
+        [InlineData("key1", null, false)]
+        [InlineData("key1", "", false)]
+        [InlineData("key1", "  ", false)]
+        [InlineData("key1", "val1", true)]
+        public void RemoveTest(string given_key, string given_value, bool expected)
+        {
+            // Arrange
+            ArrangeByDefault();
+
+            // Act
+            Retorts.Clear();
+            var added = Retorts.Add(given_key, given_value);
+            var removal = Retorts.Remove(given_key);
+
+            // Assert
+            Assert.Equal(expected, removal);
+        }
 
         // TODO COVER REMOVEAll null, empty, wrong with empty key, wrong with empty value, proper with non-existing key, proper with existing key
     }

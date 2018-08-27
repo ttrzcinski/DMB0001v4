@@ -123,5 +123,10 @@ namespace DMB0001v4.Skills
         {
             return "It operates all greetings and valedictions, so if passed phrase is a hello or bye, it will be processed here.";
         }
+
+        public int Count()
+        {
+            return 6;
+        }
     }
 }

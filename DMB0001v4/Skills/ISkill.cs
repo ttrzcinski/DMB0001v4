@@ -28,5 +28,7 @@ namespace DMB0001v4.Skills
         /// </summary>
         /// <returns>short description</returns>
         string About();
+
+        int Count();
     }
 }

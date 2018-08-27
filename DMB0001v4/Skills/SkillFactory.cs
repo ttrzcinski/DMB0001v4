@@ -12,14 +12,14 @@ namespace DMB0001v4.Skills
         /// <summary>
         /// Kept pool filled with different skills.
         /// </summary>
-        private static readonly Dictionary<string, ISkill> _skills = new Dictionary<string, ISkill>();
+        private static Dictionary<string, ISkill> _skills = new Dictionary<string, ISkill>();
 
         /// <summary>
         /// Kept instance of skills factory.
         /// </summary>
         private static SkillFactory _factory;
 
-        private readonly IConversationStateProvider _conversationStateProvider;
+        private static IConversationStateProvider _conversationStateProvider;
 
         /// <summary>
         /// Serves as safety lock in creating instance of singleton.
@@ -34,15 +34,25 @@ namespace DMB0001v4.Skills
         /// Returns the only instance of skill factory.
         /// </summary>
         /// <returns></returns>
-        public static SkillFactory GetInstance()
+        public static SkillFactory GetInstance(ITurnContext context, IConversationStateProvider conversationStateProvider)
         {
             if (_factory == null)
             {
                 lock (padlock)
                 {
-                    if (_factory == null)
+                    //
+                    _conversationStateProvider = conversationStateProvider;
+                    //
+                    _factory = _factory ?? new SkillFactory();
+                    // Check, if skill set is empty
+                    if (_skills.Count == 0)
                     {
-                        _factory = new SkillFactory();
+                        var knownSkills = new[] { "greetings", "retorts" };
+                        var greetingInstance = Greetings.Instance(context, conversationStateProvider);
+                        var retortsInstance = Retorts.Instance(context, conversationStateProvider);
+                        //
+                        _skills.Add("greetings", greetingInstance);
+                        _skills.Add("retorts", retortsInstance);
                     }
                 }
             }
@@ -58,37 +68,29 @@ namespace DMB0001v4.Skills
         /// <returns>wanted skill, if found, null otherwise</returns>
         public ISkill GetSkill(string key, ITurnContext context, IConversationStateProvider conversationStateProvider)
         {
-            lock (_skills)
+            // if it does exist, read it and return it
+            if (_skills.TryGetValue(key, out ISkill instance))
             {
-                // if it doesn't exist, create it and store it
-                if (_skills.TryGetValue(key, out ISkill instance))
-                {
-                    //It does exist
-                    instance = _skills[key];
-                }
-                else
-                {
-                    // at this point, you can create a derived class instance
-                    switch (key)
-                    {
-                        // TODO if would be nice, if this would be classfiles processor on directory - not to type every single skill in factory
-                        case "greetings":
-                            instance = Greetings.Instance(context, conversationStateProvider);
-                            break;
-                        case "retorts":
-                            instance = Retorts.Instance(context, conversationStateProvider);
-                            break;
-                    }
-                    //
-                    if (instance != null)
-                    {
-                        _skills.Add(key, instance);
-                    }
-                }
-
-                // always return the same ("singleton") instance for this key
-                return instance;
+                instance = _skills[key];
             }
+            else
+            {
+                // First time - call to init an instance
+                switch (key)
+                {
+                    // TODO if would be nice, if this would be classfiles processor on directory - not to type every single skill in factory
+                    case "greetings":
+                        instance = Greetings.Instance(context, conversationStateProvider);
+                        break;
+                    case "retorts":
+                        instance = Retorts.Instance(context, conversationStateProvider);
+                        break;
+                }
+                //
+                if (instance != null)
+                    _skills.Add(key, instance);
+            }
+            return instance;
         }
 
         /// <summary>

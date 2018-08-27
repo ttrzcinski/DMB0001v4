@@ -17,7 +17,7 @@ namespace DMB0001v4
         /// <summary>
         /// Keeps in one place all known skills.
         /// </summary>
-        private SkillFactory _skills = SkillFactory.GetInstance();
+        private SkillFactory _skills;
 
         private readonly IConversationStateProvider _conversationStateProvider;
 
@@ -74,8 +74,18 @@ namespace DMB0001v4
 
                 // Check, if phraase can be processed by known skills
                 // TODO Change it to call  through factory's pool
-                ISkill greetings = _skills.GetSkill("greetings", context, _conversationStateProvider);
+                _skills = SkillFactory.GetInstance(context, _conversationStateProvider);
+                //responseText = _skills.Process(lowText);
+                var greetings = _skills.GetSkill("greetings", context, _conversationStateProvider);
                 responseText = greetings.Process(lowText);
+                if (responseText != null)
+                {
+                    await context.SendActivity(responseText, null, null);
+                    return;
+                }
+                var retorts = _skills.GetSkill("retorts", context, _conversationStateProvider);
+
+                responseText = retorts.Process(lowText);
                 if (responseText != null)
                 {
                     await context.SendActivity(responseText, null, null);
