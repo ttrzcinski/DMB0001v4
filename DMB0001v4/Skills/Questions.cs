@@ -17,6 +17,10 @@ namespace DMB0001v4.Skills
         /// <returns>answer wit hfacts, if found, null otherwise</returns>
         public string Process(string given)
         {
+            // Check entry param
+            if (string.IsNullOrWhiteSpace(given)) return null;
+            //Change to lower case
+            given = given.Trim().ToLower();
             string response = null;
             // Check in known patterns
             foreach (var known in  _knownPatterns)

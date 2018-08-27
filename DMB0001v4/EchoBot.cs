@@ -71,11 +71,17 @@ namespace DMB0001v4
                 // Check, if phraase can be processed by known skills
                 // Init skills factory to call to through common merthods
                 _skills = SkillFactory.GetInstance(context, _conversationStateProvider);
-                responseText = _skills.Process(lowText);
+                responseText = _skills.Process(context.Activity.Text);//Process(lowText);
                 if (responseText != null)
                 {
                     await context.SendActivity(responseText, null, null);
                     return;
+                }
+
+                //Check, if command comes in admin mode
+                if (lowText.StartsWith("fordsays"))
+                {
+                    // TODO Call skills.Retorts with given line
                 }
 
                 // Check, if it's an image

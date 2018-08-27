@@ -6,6 +6,7 @@ using Microsoft.Bot.Builder;
 using Newtonsoft.Json;
 using System.IO;
 using DMB0001v4.Model;
+using System.Globalization;
 
 namespace DMB0001v4.Skills
 {
@@ -14,6 +15,11 @@ namespace DMB0001v4.Skills
     /// </summary>
     public class Retorts : ISkill
     {
+        /// <summary>
+        /// Admin mode word used to check beginnign of command.
+        /// </summary>
+        protected const string COMMAND_WORD = "rzezniksays";
+
         /// <summary>
         /// Returns current timestamp.
         /// </summary>
@@ -27,7 +33,7 @@ namespace DMB0001v4.Skills
         /// Backups retorts file in order not to loose all those retorts.
         /// </summary>
         /// <returns>true means backup was created, false otherwise</returns>
-        private bool BackupRetorts()
+        private static bool BackupRetorts()
         {
             // Prepare name of backup file
             var backupPath = RetortsFullPath.Replace(".json", $"_{Now()}.json");
@@ -44,13 +50,15 @@ namespace DMB0001v4.Skills
         /// <returns>value means processed, null means 'not my thing'</returns>
         public string Process(string given)
         {
-            // Assures init of list of retorts
-            AssureRetorts();
-            // Obtain retorts, if are not loaded
-            if (_retorts == null)
-                LoadRetorts();
-            // Prepare response variable
+            // Check, if param has content
+            if (string.IsNullOrWhiteSpace(given)) return null;
+            // Check, if it comes as admin mode command
+            if (given.StartsWith(COMMAND_WORD, StringComparison.Ordinal) && given.Trim().Length > COMMAND_WORD.Length)
+                return Process_asCommand(given);
+            // Prepare response
             string response = null;
+            // Change to lowercase
+            given = given.Trim().ToLower();
             // TODO covert it to lambda expression
             // response = _retorts.Find(item => item.Question.ToLower().Equals(question)).Answer;
             foreach (var retort in _retorts)
@@ -59,7 +67,37 @@ namespace DMB0001v4.Skills
                     response = retort.Answer;
                     break;
                 }
-            // Returns found response from retort's answer
+            return response;
+        }
+
+        /// <summary>
+        /// Processes given retort as a admin mode command.
+        /// </summary>
+        /// <param name="given">given command line</param>
+        /// <returns>response, if it was command, null otherwise</returns>
+        private string Process_asCommand(string given)
+        {
+            string response = null;
+            // Check, if command has form of add retort
+            if (given.StartsWith("rzezniksays addretort ;") || given.StartsWith("rzezniksays addretort;"))
+            {
+                var split = given.Split(";");
+                if (split.Length == 3)
+                    if (split[1].Trim().Length > 0 && split[2].Trim().Length > 0)
+                    {
+                        //TODO CHECK, IF RETORT ALREADY EXISTS
+                        var result = Add(split[1].Trim().ToLower(), split[2].Trim());
+                        response = result
+                            ? $"Added new retort {split[1]}."
+                            : $"Couldn't add retort {split[1]}.";
+                    }
+                    else
+                        response = "One of parameters was empty.";
+                else
+                    response = "It should follow pattern: rzezniksays addretort;question;answer";
+                // TODO ADD COMMAND TO LIST ALL RETORTS
+                // TODO ADD COMMAND TO REMOVE A RETORT
+            }
             return response;
         }
 
@@ -72,8 +110,7 @@ namespace DMB0001v4.Skills
         public static bool Add(string key, string value)
         {
             // Check, if params have content
-            if (string.IsNullOrWhiteSpace(key) || string.IsNullOrWhiteSpace(value))
-                return false;
+            if (string.IsNullOrWhiteSpace(key) || string.IsNullOrWhiteSpace(value)) return false;
             // Assures, that NPE wont happen
             AssureRetorts();
             // Prepare return falg
@@ -87,8 +124,25 @@ namespace DMB0001v4.Skills
                 result = beforeCount < _retorts.Count;
                 if (result)
                 {
-                    // TODO Persist added value in file and in storages
-                    ;//result = false;
+                    // TODO Persist added value in file and in storages - if it works, move it to separate method Persist();
+                    // Backup retorts in order not to do something funky
+                    if (BackupRetorts())
+                    {
+                        //Clear file of retorts
+                        File.WriteAllText(RetortsFullPath, string.Empty);
+                        // Opens file of retorts for edit and add it at the end
+                        using (var file = File.CreateText(RetortsFullPath))
+                        {
+                            var json = JsonConvert.SerializeObject(_retorts, Formatting.Indented);
+                            file.Write(json);
+                            _retortsMaxId++;
+                        }
+                    }
+                    else
+                    {
+                        Console.WriteLine("Couldn't make a backup of retorts.");
+                    }
+                    
                 }
             }
             return result;

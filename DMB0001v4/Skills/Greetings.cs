@@ -83,8 +83,13 @@ namespace DMB0001v4.Skills
         /// <returns>response, if was processed, null, if 'not my thing'</returns>
         public string Process(string given)
         {
+            // Check entry param
+            if (string.IsNullOrWhiteSpace(given)) return null;
+            // Change to lower case
+            given = given.Trim().ToLower();
+            // Prepare response variable
             string responseText = null;
-
+            // Check, in known greetings
             switch (given)
             {
                 case "hi":
@@ -111,7 +116,6 @@ namespace DMB0001v4.Skills
                     responseText = _dialogUtils.Valediction();
                     break;
             }
-
             return responseText;
         }
 
@@ -121,6 +125,9 @@ namespace DMB0001v4.Skills
         /// <returns>short description</returns>
         public string About => "It operates all greetings and valedictions, so if passed phrase is a hello or bye, it will be processed here.";
 
+        /// <summary>
+        /// Count of known greetings.
+        /// </summary>
         public int Count => 6;
     }
 }
