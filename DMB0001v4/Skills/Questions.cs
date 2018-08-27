@@ -1,18 +1,34 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.IO;
 using DMB0001v4.Model;
 using DMB0001v4.Providers;
 using Microsoft.Bot.Builder;
 using Newtonsoft.Json;
+using System.Linq;
 
 namespace DMB0001v4.Skills
 {
     public class Questions : ISkill
     {
+        /// <summary>
+        /// PRocesses given question with know patterns of questions in order to extract facts, check common knowledge aboput them and put it to the answer.
+        /// </summary>
+        /// <param name="given">given question</param>
+        /// <returns>answer wit hfacts, if found, null otherwise</returns>
         public string Process(string given)
         {
-            throw new NotImplementedException();
+            string response = null;
+            // Check in known patterns
+            foreach (var known in  _knownPatterns)
+            {
+                if (known.Pattern_question.Equals(given))
+                {
+                    //TODO Add processing with facts
+                    response = known.Pattern_answer;
+                    break;
+                }
+            }
+            return response;
         }
 
         // --- ---- --- LEAVE EVERYTHING BELOW THIS LINE AS IT IS - IT'S OK --- ----- ---
@@ -38,7 +54,10 @@ namespace DMB0001v4.Skills
         /// Keopt list of known question patterns.
         /// </summary>
         private List<Question> _knownPatterns;
-
+        /// <summary>
+        /// The highest id of known patterns.
+        /// </summary>
+        private static int _patternsMaxId = -1;
         /// <summary>
         /// Blocked empty constructors - this skills is a snigleton.
         /// </summary>
@@ -54,7 +73,7 @@ namespace DMB0001v4.Skills
         {
             _state = conversationStateProvider.GetConversationState<BrainState>(context);
             // Create new DialogUtils to hide logic in sub-methods
-            assureQuestions();
+            AssureQuestions();
         }
 
         /// <summary>
@@ -81,7 +100,10 @@ namespace DMB0001v4.Skills
             return _instance;
         }
 
-        private void assureQuestions()
+        /// <summary>
+        /// Assures presence of questions by initializing them and reading content from known patterns file.
+        /// </summary>
+        private void AssureQuestions()
         {
             if (_knownPatterns == null)
             {
@@ -104,8 +126,25 @@ namespace DMB0001v4.Skills
                 _knownPatterns = items;
 
                 // TODO: Fix the path top search from within the project
-                //FixITToMax();
+                FixITToMax();
             }
+        }
+
+        /// <summary>
+        /// Finds the highest id from retorts.
+        /// </summary>
+        private void FixITToMax()
+        {
+            if (_knownPatterns != null) _patternsMaxId = _knownPatterns.Select(t => t.Id).OrderByDescending(t => t).FirstOrDefault();
+        }
+
+        /// <summary>
+        /// Returns top id of all known patterns.
+        /// </summary>
+        /// <returns>top id, if there are some patterns, on null or empty returns 0</returns>
+        public int RetortsMaxId()
+        {
+            return _patternsMaxId;
         }
 
         /// <summary>

@@ -45,7 +45,7 @@ namespace DMB0001v4.Skills
         public string Process(string given)
         {
             // Assures init of list of retorts
-            assureRetorts();
+            AssureRetorts();
             // Obtain retorts, if are not loaded
             if (_retorts == null)
                 LoadRetorts();
@@ -75,7 +75,7 @@ namespace DMB0001v4.Skills
             if (string.IsNullOrWhiteSpace(key) || string.IsNullOrWhiteSpace(value))
                 return false;
             // Assures, that NPE wont happen
-            assureRetorts();
+            AssureRetorts();
             // Prepare return falg
             bool result = false;
             // Check previous count to confirm, that an element was added
@@ -102,7 +102,7 @@ namespace DMB0001v4.Skills
         public static bool AddAll(IDictionary<string, string> elements)
         {
             // Assures, that NPE wont happen
-            assureRetorts();
+            AssureRetorts();
             // Prepare return falg
             bool result = false;
             int beforeCount = _retorts.Count;
@@ -132,7 +132,7 @@ namespace DMB0001v4.Skills
         public static bool Remove(string key)
         {
             // Assures, that NPE wont happen
-            assureRetorts();
+            AssureRetorts();
             // Prepare return falg
             bool result = false;
             // Check element before try to remove
@@ -168,7 +168,7 @@ namespace DMB0001v4.Skills
         public static bool RemoveAll(IDictionary<string, string> elements)
         {
             // Assures, that NPE wont happen
-            assureRetorts();
+            AssureRetorts();
             // Prepare return falg
             bool result = false;
             int beforeCount = _retorts.Count;
@@ -243,7 +243,7 @@ namespace DMB0001v4.Skills
         {
             _state = conversationStateProvider.GetConversationState<BrainState>(context);
             // Create new DialogUtils to hide logic in sub-methods
-            assureRetorts();
+            AssureRetorts();
         }
 
         /// <summary>
@@ -271,9 +271,9 @@ namespace DMB0001v4.Skills
         }
 
         /// <summary>
-        /// Assures, that retorts are present and are not null.
+        /// Assures presence of retorts by initializing them and reading content from retorts file.
         /// </summary>
-        private static void assureRetorts()
+        private static void AssureRetorts()
         {
             if (_retorts == null)
             {
@@ -289,7 +289,6 @@ namespace DMB0001v4.Skills
         public static void LoadRetorts()
         {
             // TODO: Change to relative path
-
             using (var reader = new StreamReader(RetortsFullPath))
             {
                 var json = reader.ReadToEnd();
