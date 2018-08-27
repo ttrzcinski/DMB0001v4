@@ -57,7 +57,7 @@ namespace DMB0001v4.Mind
                     : "I don't have permissions to ask System, what is your name.";
                 if (!response.StartsWith("I don't", StringComparison.Ordinal))
                 {
-                        _state.UsersName = response;
+                    _state.UsersName = response;
                 }
             }
             catch (Exception exception1)

@@ -35,7 +35,7 @@ namespace Units.UnitTests.Mind
                 .Returns(brainState);
 
             // Act
-            var actual = _utils.Author();
+            var actual = _utils.Author;
 
             // Assert
             Assert.NotNull(actual);
@@ -50,7 +50,7 @@ namespace Units.UnitTests.Mind
                 .Returns(brainState);
 
             // Act
-            var actual = _utils.Author();
+            var actual = _utils.Author;
 
             // Assert
             Assert.IsType<Activity>(actual);
@@ -66,7 +66,7 @@ namespace Units.UnitTests.Mind
                 .Returns(brainState);
 
             // Act
-            var actual = _utils.Author();
+            var actual = _utils.Author;
 
             // Assert
             Assert.Equal(author, actual.Text);
@@ -83,7 +83,7 @@ namespace Units.UnitTests.Mind
                 .Returns(brainState);
 
             // Act
-            var actual = _utils.Author();
+            var actual = _utils.Author;
 
             // Assert
             Assert.NotNull(actual.Attachments[0]);

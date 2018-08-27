@@ -120,15 +120,15 @@ namespace DMB0001v4
                         break;
 
                     case "who made you?":
-                        responseActivity = dialogUtils.Author();
+                        responseActivity = dialogUtils.Author;
                         break;
 
                     case "who created you?":
-                        responseActivity = dialogUtils.Author();
+                        responseActivity = dialogUtils.Author;
                         break;
 
                     case "who wrote you?":
-                        responseActivity = dialogUtils.Author();
+                        responseActivity = dialogUtils.Author;
                         break;
 
                     case "what is my name?":

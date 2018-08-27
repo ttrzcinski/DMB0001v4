@@ -65,11 +65,10 @@ namespace DMB0001v4.Mind
             if (_state == null)
             {
                 throw new ArgumentNullException("_state is null.");
-                //System.Collections.Generic.KeyNotFoundException 
             }
             var response = _state.SaidHi == false || (_state.SaidByeAfter == true && _state.SaidHi == true)
-                ? _responses["response_greet_hello"] //Phrases.response_greet_hello
-                : _responses["response_greet_weve"]; //Phrases.response_greet_weve;
+                ? _responses["response_greet_hello"]
+                : _responses["response_greet_weve"];
             if (_state.SaidHi == false)
             {
                 _state.SaidHi = true;
@@ -84,6 +83,10 @@ namespace DMB0001v4.Mind
         /// <returns>Valediction</returns>
         public string Valediction()
         {
+            if (_state == null)
+            {
+                throw new ArgumentNullException("_state is null.");
+            }
             var response = _state.SaidHi == false || (_state.SaidByeAfter == true && _state.SaidHi == true)
                 ? _responses["response_bye_goodbye"] //Phrases..response_bye_goodbye
                 : _responses["response_bye_weve"]; //Phrases.response_bye_weve;
@@ -155,7 +158,6 @@ namespace DMB0001v4.Mind
                     // TODO Fix to use all the given answers
                     response = _state.RisenQuestion.Responses[i == 0 ? 0 : 1];
                     // TODO Add processing of an answer in knowledge - don't ask twice about the same
-                    //_state.RisenQuestion.Processed = true;
                     _state.RisenQuestion = null;
                     break;
                 }
@@ -168,13 +170,10 @@ namespace DMB0001v4.Mind
         /// Shows information about the author of this bot.
         /// </summary>
         /// <returns>activity with infomration about author</returns>
-        public IMessageActivity Author()
-        {
-            var activity = MessageFactory.Attachment(new Attachment[]
+        public IMessageActivity Author 
+            => MessageFactory.Attachment(new Attachment[]
             {
                 new Attachment { ContentUrl = "https://avatars2.githubusercontent.com/u/12435750?s=460&v=4", ContentType = "image/jpg" }
             }, text: "Tomasz Trzciński <trzcinski.tomasz.1988@gmail.com>");
-            return activity;
-        }
     }
 }
