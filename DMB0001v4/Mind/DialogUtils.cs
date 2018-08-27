@@ -17,7 +17,7 @@ namespace DMB0001v4.Mind
         /// <summary>
         /// State of currently remembered facts and knowledge.
         /// </summary>
-        private BrainState _state;
+        private static BrainState _state;
 
         private static Dictionary<string, string> _responses;
 
@@ -28,7 +28,18 @@ namespace DMB0001v4.Mind
         /// <param name="conversationStateProvider">provider for passing the state from context</param>>
         public DialogUtils(ITurnContext context, IConversationStateProvider conversationStateProvider)
         {
-            _state = conversationStateProvider.GetConversationState<BrainState>(context);
+            if (context == null)
+            {
+                throw new ArgumentNullException("context", "context is null.");
+            }
+            if (conversationStateProvider == null)
+            {
+                throw new ArgumentNullException("conversationStateProvider", "conversationStateProvider is null.");
+            }
+            if (_state == null)
+            {
+                _state = conversationStateProvider.GetConversationState<BrainState>(context);
+            }
             //
             initLocalizedAnswers();
         }
@@ -64,8 +75,9 @@ namespace DMB0001v4.Mind
         {
             if (_state == null)
             {
-                throw new ArgumentNullException("_state is null.");
+                throw new ArgumentNullException("_state", "_state is null.");
             }
+            initLocalizedAnswers();
             var response = _state.SaidHi == false || (_state.SaidByeAfter == true && _state.SaidHi == true)
                 ? _responses["response_greet_hello"]
                 : _responses["response_greet_weve"];
@@ -87,6 +99,7 @@ namespace DMB0001v4.Mind
             {
                 throw new ArgumentNullException("_state is null.");
             }
+            initLocalizedAnswers();
             var response = _state.SaidHi == false || (_state.SaidByeAfter == true && _state.SaidHi == true)
                 ? _responses["response_bye_goodbye"] //Phrases..response_bye_goodbye
                 : _responses["response_bye_weve"]; //Phrases.response_bye_weve;

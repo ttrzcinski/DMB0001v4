@@ -1,4 +1,5 @@
-﻿using DMB0001v4.Mind;
+﻿using System.Linq;
+using DMB0001v4.Mind;
 using DMB0001v4.Providers;
 using Microsoft.Bot.Builder;
 
@@ -66,15 +67,9 @@ namespace DMB0001v4.Skills
         public static Greetings Instance(ITurnContext context, IConversationStateProvider conversationStateProvider)
         {
             if (_instance == null)
-            {
                 lock (padlock)
-                {
                     if (_instance == null)
-                    {
                         _instance = new Greetings(context, conversationStateProvider);
-                    }
-                }
-            }
             return _instance;
         }
 
@@ -87,38 +82,20 @@ namespace DMB0001v4.Skills
         {
             // Check entry param
             if (string.IsNullOrWhiteSpace(given)) return null;
-            //Check, if _dialogUtils is initalized
+            // Check, if _dialogUtils is initalized
             if (_dialogUtils == null) return "_dialogUtils is not present.";
             // Change to lower case
             given = given.Trim().ToLower();
             // Prepare response variable
             string responseText = null;
             // Check, in known greetings
-            switch (given)
+            if (new[]{ "hi", "hello", "welcome" }.Contains(given))
             {
-                case "hi":
-                    responseText = _dialogUtils.Greeting();
-                    break;
-
-                case "hello":
-                    responseText = _dialogUtils.Greeting();
-                    break;
-
-                case "welcome":
-                    responseText = _dialogUtils.Greeting();
-                    break;
-
-                case "bye":
-                    responseText = _dialogUtils.Valediction();
-                    break;
-
-                case "goodbye":
-                    responseText = _dialogUtils.Valediction();
-                    break;
-
-                case "farewell":
-                    responseText = _dialogUtils.Valediction();
-                    break;
+                responseText = _dialogUtils.Greeting();
+            }
+            else if (new[] { "bye", "goodbye", "farewell" }.Contains(given))
+            {
+                responseText = _dialogUtils.Valediction();
             }
             return responseText;
         }

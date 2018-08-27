@@ -155,6 +155,8 @@ namespace Units.UnitTests.Skills
             ArrangeByDefault();
 
             // Act
+            Retorts.Clear();
+            Retorts.LoadRetorts();
             var actual = Retorts.GetCount();
 
             // Assert
