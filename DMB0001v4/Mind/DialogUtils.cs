@@ -19,6 +19,9 @@ namespace DMB0001v4.Mind
         /// </summary>
         private static BrainState _state;
 
+        /// <summary>
+        /// Kept list of reponses to risen questions.
+        /// </summary>
         private static Dictionary<string, string> _responses;
 
         /// <summary>
@@ -44,6 +47,9 @@ namespace DMB0001v4.Mind
             initLocalizedAnswers();
         }
 
+        /// <summary>
+        /// Initalizes and assurses presence of standard responses from resx file.
+        /// </summary>
         private void initLocalizedAnswers()
         {
             if (_responses == null)
