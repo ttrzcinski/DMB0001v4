@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Linq;
-using System.Net.Http;
 using System.Threading.Tasks;
 using DMB0001v4.Mind;
 using DMB0001v4.Providers;
@@ -49,21 +48,18 @@ namespace DMB0001v4
             {
                 // Get the conversation state from the turn context
                 var state = _conversationStateProvider.GetConversationState<BrainState>(context);
-
                 // Create new DialogUtils to hide logic in sub-methods
                 var dialogUtils = new DialogUtils(context, _conversationStateProvider);
-
                 // Bump the turn count. 
                 state.TurnCount++;
-
                 // Prepare lowercase user's request
                 var lowText = context.Activity.Text.ToLower();
 
                 // Prepare response - move to separate class
                 string responseText = null;
+                // TODO - if ever speech will be on - cchangestring responseSpeak = null;
                 string responseSpeak = null;
                 IMessageActivity responseActivity = null;//IActivity
-                // TODO - if ever speech will be on - string responseSpeak = null;
                 // Check, if question was asked
                 if (state.RisenQuestion != null)
                 {
@@ -73,19 +69,9 @@ namespace DMB0001v4
                 }
 
                 // Check, if phraase can be processed by known skills
-                // TODO Change it to call  through factory's pool
+                // Init skills factory to call to through common merthods
                 _skills = SkillFactory.GetInstance(context, _conversationStateProvider);
-                //responseText = _skills.Process(lowText);
-                var greetings = _skills.GetSkill("greetings", context, _conversationStateProvider);
-                responseText = greetings.Process(lowText);
-                if (responseText != null)
-                {
-                    await context.SendActivity(responseText, null, null);
-                    return;
-                }
-                var retorts = _skills.GetSkill("retorts", context, _conversationStateProvider);
-
-                responseText = retorts.Process(lowText);
+                responseText = _skills.Process(lowText);
                 if (responseText != null)
                 {
                     await context.SendActivity(responseText, null, null);
@@ -226,14 +212,7 @@ namespace DMB0001v4
                     await context.SendActivity(responseActivity);
                 }
                 if (responseText != null) {
-                    if (responseSpeak != null)
-                    {
-                        await context.SendActivity(responseText, responseSpeak, null);//, "acceptingInput");
-                    }
-                    else
-                    {
-                        await context.SendActivity(responseText, null, null);//, "acceptingInput");
-                    }
+                    await context.SendActivity(responseText, responseSpeak, null);//, "acceptingInput");
                 }
             }
         }

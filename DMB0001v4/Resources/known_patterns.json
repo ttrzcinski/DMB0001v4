@@ -1,0 +1,16 @@
+[
+  {
+    "Id": 1,
+    "Pattern_question": "where is {0}?",
+    "Things_question": [ "Thing" ],
+    "Pattern_answer": "The {0} is {1}.",
+    "Things_answer": [ "Thing", , "Location" ]
+  },
+  {
+    "Id": 2,
+    "Pattern_question": "what is {0}?",
+    "Things_question": [ "Thing" ],
+    "Pattern_answer": "The {0} is {1}",
+    "Things_answer": [ "Thing", "Category" ]
+  }
+]

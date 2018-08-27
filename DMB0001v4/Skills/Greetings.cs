@@ -119,14 +119,8 @@ namespace DMB0001v4.Skills
         /// Returns short description of this skill.
         /// </summary>
         /// <returns>short description</returns>
-        public string About()
-        {
-            return "It operates all greetings and valedictions, so if passed phrase is a hello or bye, it will be processed here.";
-        }
+        public string About => "It operates all greetings and valedictions, so if passed phrase is a hello or bye, it will be processed here.";
 
-        public int Count()
-        {
-            return 6;
-        }
+        public int Count => 6;
     }
 }

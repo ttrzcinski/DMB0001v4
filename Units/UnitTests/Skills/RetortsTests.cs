@@ -70,7 +70,7 @@ namespace Units.UnitTests.Skills
             var retorts = SkillFactory.GetInstance().GetSkill("retorts", _context.Object, _provider.Object);
 
             // Act
-            var actual = retorts.About();
+            var actual = retorts.About;
 
             // Assert
             Assert.NotNull(actual);

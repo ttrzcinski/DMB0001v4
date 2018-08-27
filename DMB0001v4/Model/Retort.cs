@@ -10,13 +10,6 @@
         public string Question { get; set; }
         public string Answer { get; set; }
 
-        /*public Retort(int id, string question, string answer)
-        {
-            Id = id;
-            Question = question;
-            Answer = answer;
-        }*/
-
         // Returns concatenated form of retort to list it.
         /// <summary>
         /// Returns concatenated form of retort to list it.
