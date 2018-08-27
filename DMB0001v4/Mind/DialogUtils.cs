@@ -138,10 +138,10 @@ namespace DMB0001v4.Mind
         }
 
         /// <summary>
-        /// Given answer to currently risen question.
+        /// Passes user's answer to currently risen question.
         /// </summary>
-        /// <param name="answer">given answer</param>
-        /// <returns></returns>
+        /// <param name="answer">user's answer</param>
+        /// <returns>response to choosen answer</returns>
         public string Answer(string answer)
         {
             var response = Phrases.response_after_noquestion;

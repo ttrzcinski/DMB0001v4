@@ -153,12 +153,9 @@ namespace Units.UnitTests.Skills
         {
             // Arrange
             ArrangeByDefault();
-            // TODO add call to load retorts from file
-            Retorts.Add("test_1", "test_val_1");
 
             // Act
             var actual = Retorts.GetCount();
-            Retorts.Remove("test_1");
 
             // Assert
             Assert.True(actual > 0);
