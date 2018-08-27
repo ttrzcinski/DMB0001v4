@@ -19,7 +19,7 @@ namespace DMB0001v4.Mind
         /// </summary>
         private BrainState _state;
 
-        private Dictionary<string, string> _responses;
+        private static Dictionary<string, string> _responses;
 
         /// <summary>
         /// Creates new instance of Utils for Dialogs.
@@ -65,6 +65,7 @@ namespace DMB0001v4.Mind
             if (_state == null)
             {
                 throw new ArgumentNullException("_state is null.");
+                //System.Collections.Generic.KeyNotFoundException 
             }
             var response = _state.SaidHi == false || (_state.SaidByeAfter == true && _state.SaidHi == true)
                 ? _responses["response_greet_hello"] //Phrases.response_greet_hello

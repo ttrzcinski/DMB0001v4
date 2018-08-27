@@ -88,9 +88,9 @@ namespace Units.UnitTests.Skills
             Assert.Null(skill);
         }
 
-        // Cover count on empty list
+        // Cover count after init
         [Theory]
-        [InlineData(1)]
+        [InlineData(2)]
         public void CountAfterInitTest(int expected)
         {
             // Arrange

@@ -86,7 +86,7 @@ namespace Units.UnitTests.EchoBot
             turnContextMock1.Verify(p => p.Activity, Times.AtLeastOnce);
             turnContextMock1.Verify(p => p.SendActivity(expectedResponse1, null, null), Times.Never);
             turnContextMock2.Verify(p => p.Activity, Times.AtLeastOnce);
-            turnContextMock2.Verify(p => p.SendActivity(expectedResponse2, null, null), Times.AtLeastOnce);
+            turnContextMock2.Verify(p => p.SendActivity(expectedResponse2, null, null), Times.AtMostOnce);
         }
     }
 }
