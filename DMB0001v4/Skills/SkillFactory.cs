@@ -10,27 +10,6 @@ namespace DMB0001v4.Skills
     public class SkillFactory
     {
         /// <summary>
-        /// Kept pool filled with different skills.
-        /// </summary>
-        private static Dictionary<string, ISkill> _skills = new Dictionary<string, ISkill>();
-
-        /// <summary>
-        /// Kept instance of skills factory.
-        /// </summary>
-        private static SkillFactory _factory;
-
-        private static IConversationStateProvider _conversationStateProvider;
-
-        /// <summary>
-        /// Serves as safety lock in creating instance of singleton.
-        /// </summary>
-        private static readonly object padlock = new object();
-
-        // this is the classic good old singleton trick (prevent direct instantiation)
-        private SkillFactory()
-        { }
-
-        /// <summary>
         /// Returns the only instance of skill factory.
         /// </summary>
         /// <returns></returns>
@@ -47,12 +26,14 @@ namespace DMB0001v4.Skills
                     // Check, if skill set is empty
                     if (_skills.Count == 0)
                     {
-                        var knownSkills = new[] { "greetings", "retorts" };
+                        var knownSkills = new[] { "greetings", "retorts"};//, "questions" };
                         var greetingInstance = Greetings.Instance(context, conversationStateProvider);
                         var retortsInstance = Retorts.Instance(context, conversationStateProvider);
+                        //var questionsInstance = Questions.Instance(context, conversationStateProvider);
                         //
                         _skills.Add("greetings", greetingInstance);
                         _skills.Add("retorts", retortsInstance);
+                        //_skills.Add("questions", questionsInstance);
                     }
                 }
             }
@@ -85,12 +66,66 @@ namespace DMB0001v4.Skills
                     case "retorts":
                         instance = Retorts.Instance(context, conversationStateProvider);
                         break;
+                    /*case "questions":
+                        instance = Questions.Instance(context, conversationStateProvider);
+                        break;*/
                 }
-                //
+                // If obtained instance, add it to known skills
                 if (instance != null)
                     _skills.Add(key, instance);
             }
             return instance;
+        }
+
+        // --- ---- --- LEAVE EVERYTHING BELOW THIS LINE AS IT IS - IT'S OK --- ----- ---
+        /// <summary>
+        /// Kept pool filled with different skills.
+        /// </summary>
+        private static Dictionary<string, ISkill> _skills;
+
+        /// <summary>
+        /// Kept instance of skills factory.
+        /// </summary>
+        private static SkillFactory _factory;
+
+        /// <summary>
+        /// Kept provider to pass mind's state and make it changeable from inside of skill.
+        /// </summary>
+        private static IConversationStateProvider _conversationStateProvider;
+
+        /// <summary>
+        /// Serves as safety lock in creating instance of singleton.
+        /// </summary>
+        private static readonly object padlock = new object();
+
+        // this is the classic good old singleton trick (prevent direct instantiation)
+        private SkillFactory() => AssureSkills();
+
+        /// <summary>
+        /// Assures, that skillset will be initialized.
+        /// </summary>
+        private void AssureSkills()
+        {
+            if (_skills == null)
+                _skills = new Dictionary<string, ISkill>();
+        }
+
+        /// <summary>
+        /// Processes given phrase through all known skills.
+        /// </summary>
+        /// <param name="toProcess">given phrase</param>
+        /// <returns>response, if some responded, null otherwise</returns>
+        public string Process(string toProcess)
+        {
+            string response = null;
+            // Loop through all known skills, until some will respond.
+            foreach (KeyValuePair<string, ISkill> skill in _skills)
+            {
+                response = skill.Value.Process(toProcess);
+                // If responded, stop looping
+                if (response != null) break;
+            }
+            return response;
         }
 
         /// <summary>
@@ -103,25 +138,5 @@ namespace DMB0001v4.Skills
         /// Clears pool of kept instances.
         /// </summary>
         public static void Clear() => (_skills ?? new Dictionary<string, ISkill>()).Clear();
-
-        /// <summary>
-        /// Processes given phrase through all known skills.
-        /// </summary>
-        /// <param name="toProcess">given phrase</param>
-        /// <returns>response, if some responded, null otherwise</returns>
-        public string Process(string toProcess)
-        {
-            // Prepare response
-            string response = null;
-            // Loop through all known skills, until some will respond.
-            foreach (KeyValuePair<string, ISkill> skill in _skills)
-            {
-                response = skill.Value.Process(toProcess);
-                // If responded, stop looping
-                if (response != null) break;
-            }
-            // Return the response
-            return response;
-        }
     }
 }
