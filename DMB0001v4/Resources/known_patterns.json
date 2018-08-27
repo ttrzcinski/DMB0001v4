@@ -4,7 +4,7 @@
     "Pattern_question": "where is {0}?",
     "Things_question": [ "Thing" ],
     "Pattern_answer": "The {0} is {1}.",
-    "Things_answer": [ "Thing", , "Location" ]
+    "Things_answer": [ "Thing", "Location" ]
   },
   {
     "Id": 2,
@@ -12,5 +12,19 @@
     "Things_question": [ "Thing" ],
     "Pattern_answer": "The {0} is {1}",
     "Things_answer": [ "Thing", "Category" ]
+  },
+  {
+    "Id": 3,
+    "Pattern_question": "when was {0}?",
+    "Things_question": [ "Event" ],
+    "Pattern_answer": "The {0} was in {1}",
+    "Things_answer": [ "Event", "Date" ]
+  },
+  {
+    "Id": 4,
+    "Pattern_question": "do you like {0}?",
+    "Things_question": [ "Thing" ],
+    "Pattern_answer": "I {} like {0}.",
+    "Things_answer": [ "bool", "Thing" ]
   }
 ]

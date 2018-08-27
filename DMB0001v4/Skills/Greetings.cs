@@ -53,10 +53,8 @@ namespace DMB0001v4.Skills
         /// <param name="context">current dialog context</param>
         /// <param name="conversationStateProvider">provider for passing the state from context</param>>
         /// <returns>instance of greeting</returns>
-        public ISkill GetInstance(ITurnContext context, IConversationStateProvider conversationStateProvider)
-        {
-            return Instance(context, conversationStateProvider);
-        }
+        public ISkill GetInstance(ITurnContext context, IConversationStateProvider conversationStateProvider) 
+            => Instance(context, conversationStateProvider);
 
         /// <summary>
         /// Creates new instance of skill.
@@ -89,7 +87,7 @@ namespace DMB0001v4.Skills
             // Prepare response variable
             string responseText = null;
             // Check, in known greetings
-            if (new[]{ "hi", "hello", "welcome" }.Contains(given))
+            if (new[] { "hi", "hello", "welcome" }.Contains(given))
             {
                 responseText = _dialogUtils.Greeting();
             }

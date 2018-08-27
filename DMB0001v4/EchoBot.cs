@@ -50,9 +50,7 @@ namespace DMB0001v4
             {
                 // Get the conversation state from the turn context
                 if (_state == null)
-                {
                     _state = _conversationStateProvider.GetConversationState<BrainState>(context);
-                }
 
                 // Create new DialogUtils to hide logic in sub-methods
                 var dialogUtils = new DialogUtils(context, _conversationStateProvider);
@@ -149,7 +147,10 @@ namespace DMB0001v4
                         var activity = MessageFactory.Attachment(
                             new HeroCard(
                                     title: "Some internet image",
-                                    images: new CardImage[] { new CardImage(url: "https://www.google.pl/images/branding/googlelogo/1x/googlelogo_color_272x92dp.png") },
+                                    images: new CardImage[]
+                                    {
+                                        new CardImage(url: "https://www.google.pl/images/branding/googlelogo/1x/googlelogo_color_272x92dp.png")
+                                    },
                                     buttons: new CardAction[]
                                     {
                                         new CardAction(title: "buy", type: ActionTypes.ImBack, value: "buy")
