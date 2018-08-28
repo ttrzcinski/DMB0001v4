@@ -28,11 +28,5 @@ namespace DMB0001v4.Skills
         /// </summary>
         /// <returns>short description</returns>
         string About { get; }
-
-        /// <summary>
-        /// Returns count of kept items inside.
-        /// </summary>
-        /// <returns>kept items inside</returns>
-        int Count { get; }
     }
 }

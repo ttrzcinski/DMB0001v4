@@ -208,8 +208,16 @@ namespace DMB0001v4
                         break;
 
                     default:
-                        responseText = $"Turn {_state.TurnCount}: I didn't get that, you said: '{context.Activity.Text}'";
-                        // TODO save the command in storage or some resource DB
+                        // Add it to unknowns
+                        responseText = _skills.GetSkill("unknowns", context, _conversationStateProvider)
+                            .Process(context.Activity.Text);
+                        // Mark error on adding unknown
+                        if (responseText != null)
+                        {
+                            responseText =
+                                $"Turn {_state.TurnCount}: I didn't get that, you said: '{context.Activity.Text}'";
+                        }
+                        //
                         break;
                 }
 

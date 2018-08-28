@@ -75,6 +75,9 @@ namespace DMB0001v4.Skills
                     /*case "questions":
                         instance = Questions.Instance(context, conversationStateProvider);
                         break;*/
+                    case "unknowns":
+                        instance = Unknowns.Instance(context, conversationStateProvider);
+                        break;
                 }
                 // If obtained instance, add it to known skills
                 if (instance != null)

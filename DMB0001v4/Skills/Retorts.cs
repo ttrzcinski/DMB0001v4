@@ -8,6 +8,7 @@ using System.IO;
 using System.Text;
 using DMB0001v4.Model;
 using System.Text.RegularExpressions;
+using DMB0001v4.Mind;
 
 namespace DMB0001v4.Skills
 {
@@ -25,24 +26,6 @@ namespace DMB0001v4.Skills
         /// Locks files changing - usable in tests.
         /// </summary>
         public static bool ReadOnlyFile { get; set; }
-
-        /// <summary>
-        /// Backups retorts file in order not to loose all those retorts.
-        /// </summary>
-        /// <returns>true means backup was created, false otherwise</returns>
-        private static bool BackupRetorts()
-        {
-            // If file lock is ON, skip making new files.
-            if (ReadOnlyFile == true) return true;
-            // Prepare catalog for the backup with backup name
-            var backupPath = RetortsFullPath
-                .Replace("Resources", "Resources\\Backups")
-                .Replace(".json", $"_{Now()}.json");
-            // Copy current file to backup
-            File.Copy(RetortsFullPath, backupPath);
-            // Check, if file exists
-            return File.Exists(backupPath);
-        }
 
         /// <summary>
         /// Converts given wildcard to regular .* and .
@@ -152,7 +135,7 @@ namespace DMB0001v4.Skills
         /// </summary>
         /// <param name="key">request of retort</param>
         /// <param name="value">(optional)response of retort</param>
-        /// <returns>true means added, false otherwise</returns>
+        /// <returns>true means it has, false otherwise</returns>
         private static bool Contains(string key, string value = null) => 
             value == null ?
                 _retorts.Any(r => r.Question.Equals(key))
@@ -201,12 +184,12 @@ namespace DMB0001v4.Skills
             // Check previous count to confirm, that an element was added
             if (!Contains(key, value))
             {
-                var added = new Retort { Id = _retortsMaxId + 1, Question = key, Answer = value };
+                var added = new Retort { Id = _maxId + 1, Question = key, Answer = value };
                 _retorts.Add(added);
                 //If persisted, commit, else rollback
                 if (Persist())
                 {
-                    FindMaxRetortsId();
+                    FixMaxId();
                     result = true;
                 }
                 else
@@ -232,7 +215,7 @@ namespace DMB0001v4.Skills
             List<string> keys = items.Select(k => k.Question).ToList();
             // Fix ids in given list of items
             foreach (var item in items)
-                item.Id = ++_retortsMaxId;
+                item.Id = ++_maxId;
             // Remove all retors with new keys
             int changed = _retorts.RemoveAll(r => keys.Contains(r.Question));
             if (changed > 0)
@@ -242,7 +225,7 @@ namespace DMB0001v4.Skills
                 // Persist the change
                 result = Persist();
                 if (result)
-                    FindMaxRetortsId();
+                    FixMaxId();
                 else
                     _retorts = backupList;
             }
@@ -269,7 +252,7 @@ namespace DMB0001v4.Skills
                 // Commit, if worked, rollback otherwise
                 if (Persist())
                 {
-                    FindMaxRetortsId();
+                    FixMaxId();
                     result = true;
                 }
                 else
@@ -294,7 +277,7 @@ namespace DMB0001v4.Skills
             _retorts.RemoveAll(r => keys.Contains(r.Question));
             if (Persist())
             {
-                FindMaxRetortsId();
+                FixMaxId();
                 result = true;
             }
             else
@@ -331,7 +314,7 @@ namespace DMB0001v4.Skills
         /// <summary>
         /// The highest id of retorts.
         /// </summary>
-        private static int _retortsMaxId = -1;
+        private static int _maxId = -1;
 
         /// <summary>
         /// Blocked empty constructors - this skills is a snigleton.
@@ -348,7 +331,7 @@ namespace DMB0001v4.Skills
         {
             _state = conversationStateProvider.GetConversationState<BrainState>(context);
             // Create new DialogUtils to hide logic in sub-methods
-            AssureRetorts();
+            initList();
         }
 
         /// <summary>
@@ -378,7 +361,7 @@ namespace DMB0001v4.Skills
         /// <summary>
         /// Assures presence of retorts by initializing them and reading content from retorts file.
         /// </summary>
-        private static void AssureRetorts()
+        private static void initList()
         {
             if (_retorts == null)
             {
@@ -398,31 +381,39 @@ namespace DMB0001v4.Skills
             {
                 var json = reader.ReadToEnd();
                 _retorts = JsonConvert.DeserializeObject<List<Retort>>(json);
-
                 // TODO: Fix the path top search from within the project
-                FindMaxRetortsId();
+                FixMaxId();
             }
         }
 
         /// <summary>
         /// Finds the highest id from retorts.
         /// </summary>
-        private static void FindMaxRetortsId()
-        {
-            if (_retorts != null) _retortsMaxId = _retorts.Select(t => t.Id).OrderByDescending(t => t).FirstOrDefault();
-        }
+        private static void FixMaxId() => _maxId = _retorts != null ? _retorts.Select(t => t.Id).OrderByDescending(t => t).FirstOrDefault() : 1;
 
         /// <summary>
         /// Returns top id of all retorts.
         /// </summary>
         /// <returns>top id, if there are some retorts, on null or empty returns 0</returns>
-        public int RetortsMaxId() => _retortsMaxId;
+        public int MaxId() => _maxId;
 
         /// <summary>
-        /// Returns current timestamp.
+        /// Backups retorts file in order not to loose all those retorts.
         /// </summary>
-        /// <returns>current timestamp</returns>
-        private static string Now() => DateTime.Now.ToString("yyyyMMddHHmmssffff");
+        /// <returns>true means backup was created, false otherwise</returns>
+        private static bool BackupRetorts()
+        {
+            // If file lock is ON, skip making new files.
+            if (ReadOnlyFile == true) return true;
+            // Prepare catalog for the backup with backup name
+            var backupPath = RetortsFullPath
+                .Replace("Resources", "Resources\\Backups")
+                .Replace(".json", $"_{TimeUtils.Now()}.json");
+            // Copy current file to backup
+            File.Copy(RetortsFullPath, backupPath);
+            // Check, if file exists
+            return File.Exists(backupPath);
+        }
 
         /// <summary>
         /// Returns count of all kept retorts.
@@ -436,7 +427,7 @@ namespace DMB0001v4.Skills
         public static void Clear() => (_retorts ?? new List<Retort>()).Clear();
 
         /// <summary>
-        /// Retursn flag, if retorts set is empty.
+        /// Returns flag, if retorts set is empty.
         /// </summary>
         /// <returns>true means empty, false otherwise</returns>
         public static bool IsEmpty() => GetCount() == 0;
