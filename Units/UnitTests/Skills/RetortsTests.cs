@@ -90,13 +90,13 @@ namespace Units.UnitTests.Skills
             _provider.Setup(p => p.GetConversationState<BrainState>(_context.Object))
                 .Returns(brainState);
             var skills = SkillFactory.GetInstance(_context.Object, _provider.Object);
-            var retorts = SkillFactory.GetInstance().GetSkill("retorts", _context.Object, _provider.Object);
+            Retorts retorts = Retorts.Instance(_context.Object, _provider.Object);
             // TODO add call to load retorts from file
-            var resultOfAdd = Retorts.Add("hi", "hello");
+            var resultOfAdd = retorts.Add("hi", "hello");
 
             // Act
             var actual = retorts.Process(request);
-            Retorts.Remove("hi");
+            bool removal = retorts.Remove("hi");
 
             // Assert
             Assert.Equal(expected, actual);
@@ -108,13 +108,17 @@ namespace Units.UnitTests.Skills
         public void ClearEmptyTest()
         {
             // Arrange
-            ArrangeByDefault();
+            var brainState = new BrainState();
+            _provider.Setup(p => p.GetConversationState<BrainState>(_context.Object))
+                .Returns(brainState);
+            var retorts = Retorts.Instance(_context.Object, _provider.Object);
+            Retorts.ReadOnlyFile = true;
 
             // Act
-            Retorts.Clear();
+            retorts.Clear();
 
             // Assert
-            Assert.True(Retorts.IsEmpty());
+            Assert.True(retorts.IsEmpty());
         }
 
         // TODO Cover Clear on full
@@ -122,14 +126,18 @@ namespace Units.UnitTests.Skills
         public void ClearFullTest()
         {
             // Arrange
-            ArrangeByDefault();
+            var brainState = new BrainState();
+            _provider.Setup(p => p.GetConversationState<BrainState>(_context.Object))
+                .Returns(brainState);
+            var retorts = Retorts.Instance(_context.Object, _provider.Object);
+            Retorts.ReadOnlyFile = true;
             // TODO add call to load retorts from file
 
             // Act
-            Retorts.Clear();
+            retorts.Clear();
 
             // Assert
-            Assert.True(Retorts.IsEmpty());
+            Assert.True(retorts.IsEmpty());
         }
 
         // Cover Count after init
@@ -138,10 +146,14 @@ namespace Units.UnitTests.Skills
         {
             // Arrange
             var expected = 0;
-            ArrangeByDefault();
+            var brainState = new BrainState();
+            _provider.Setup(p => p.GetConversationState<BrainState>(_context.Object))
+                .Returns(brainState);
+            var retorts = Retorts.Instance(_context.Object, _provider.Object);
+            Retorts.ReadOnlyFile = true;
 
             // Act
-            var actual = Retorts.GetCount();
+            var actual = retorts.Count;
 
             // Assert
             Assert.Equal(expected, actual);
@@ -152,12 +164,16 @@ namespace Units.UnitTests.Skills
         public void ClearCountAfterLoadTest()
         {
             // Arrange
-            ArrangeByDefault();
+            var brainState = new BrainState();
+            _provider.Setup(p => p.GetConversationState<BrainState>(_context.Object))
+                .Returns(brainState);
+            var retorts = Retorts.Instance(_context.Object, _provider.Object);
+            Retorts.ReadOnlyFile = true;
 
             // Act
-            Retorts.Clear();
-            Retorts.LoadRetorts();
-            var actual = Retorts.GetCount();
+            retorts.Clear();
+            retorts.LoadRetorts();
+            var actual = retorts.Count;
 
             // Assert
             Assert.True(actual > 0);
@@ -184,12 +200,16 @@ namespace Units.UnitTests.Skills
         public void AddTest(string given_key, string given_value, bool expected)
         {
             // Arrange
-            ArrangeByDefault();
+            var brainState = new BrainState();
+            _provider.Setup(p => p.GetConversationState<BrainState>(_context.Object))
+                .Returns(brainState);
+            var retorts = Retorts.Instance(_context.Object, _provider.Object);
+            Retorts.ReadOnlyFile = true;
 
             // Act
-            Retorts.Clear();
-            var actual = Retorts.Add(given_key, given_value);
-            Retorts.Clear();
+            retorts.Clear();
+            var actual = retorts.Add(given_key, given_value);
+            retorts.Clear();
 
             // Assert
             Assert.Equal(expected, actual);
@@ -218,12 +238,16 @@ namespace Units.UnitTests.Skills
         public void RemoveTest(string given_key, string given_value, bool expected)
         {
             // Arrange
-            ArrangeByDefault();
+            var brainState = new BrainState();
+            _provider.Setup(p => p.GetConversationState<BrainState>(_context.Object))
+                .Returns(brainState);
+            var retorts = Retorts.Instance(_context.Object, _provider.Object);
+            Retorts.ReadOnlyFile = true;
 
             // Act
-            Retorts.Clear();
-            var added = Retorts.Add(given_key, given_value);
-            var removal = Retorts.Remove(given_key);
+            retorts.Clear();
+            var added = retorts.Add(given_key, given_value);
+            var removal = retorts.Remove(given_key);
 
             // Assert
             Assert.Equal(expected, removal);

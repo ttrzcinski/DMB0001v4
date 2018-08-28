@@ -26,7 +26,7 @@ namespace DMB0001v4.Skills
 
         void Clear();
 
-        new int Count();
+        new int Count { get; }
 
         bool IsEmpty();
 

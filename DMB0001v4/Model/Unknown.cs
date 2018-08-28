@@ -14,7 +14,7 @@
         /// <returns>id) unknown as a line</returns>
         public string AsStackEntry()
         {
-            return $"{Id}) {Question}: {Count} times.";// - modified {LastMod}";
+            return $"{Id}). {Question} - {Count} times.";// - modified {LastMod}";
         }
     }
 }

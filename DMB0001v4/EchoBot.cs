@@ -22,10 +22,7 @@ namespace DMB0001v4
 
         private readonly IConversationStateProvider _conversationStateProvider;
 
-        public EchoBot(IConversationStateProvider conversationStateProvider)
-        {
-            _conversationStateProvider = conversationStateProvider;
-        }
+        public EchoBot(IConversationStateProvider conversationStateProvider) => _conversationStateProvider = conversationStateProvider;
 
         /// <summary>
         /// Every Conversation turn for our EchoBot will call this method. In here
@@ -209,15 +206,22 @@ namespace DMB0001v4
 
                     default:
                         // Add it to unknowns
-                        responseText = _skills.GetSkill("unknowns", context, _conversationStateProvider)
-                            .Process(context.Activity.Text);
+                        var unknowns = Unknowns.Instance(context, _conversationStateProvider);
+
+                        responseText = unknowns.Process(context.Activity.Text);
                         // Mark error on adding unknown
-                        if (responseText != null)
+                        if (responseText == null)
                         {
+                            // TODO Add here use (with random) of list of 10 possible 'i dun't know's
+                            // Presents - 'i dun't know' answer
                             responseText =
                                 $"Turn {_state.TurnCount}: I didn't get that, you said: '{context.Activity.Text}'";
                         }
-                        //
+                        else
+                        {
+                            // After adding nex unknown presents added stack lines
+                            responseText = unknowns.AsStackLines();
+                        }
                         break;
                 }
 

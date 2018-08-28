@@ -7,6 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text;
 
 namespace DMB0001v4.Skills
 {
@@ -40,7 +41,7 @@ namespace DMB0001v4.Skills
         /// <summary>
         /// File's fille path with items.
         /// </summary>
-        private string _fileFullPath;
+        public const string _fileFullPath = "C:\\vsproj\\DMB0001v4\\DMB0001v4\\DMB0001v4\\Resources\\unknowns.json";
 
         /// <summary>
         /// Locks files changing - usable in tests.
@@ -59,7 +60,7 @@ namespace DMB0001v4.Skills
             // Convert it to lower case
             given = given.ToLower();
             // Try to add it
-            return Add(new Unknown {Id = 1, Question = given, Count = 1})
+            return Add(new Unknown {Id = NextMaxId(), Question = given, Count = 1})
                 ? "I would like to know, how to answer that.."
                 : null;
         }
@@ -90,7 +91,7 @@ namespace DMB0001v4.Skills
             else
             {
                 // Fix id, if already occured
-                if (item.Id < MaxId()) item.Id = ++_maxId;
+                if (item.Id < MaxId()) item.Id = NextMaxId();
                 // Fix count, as the item is new
                 item.Count = 1;
             }
@@ -130,7 +131,7 @@ namespace DMB0001v4.Skills
                 foreach (var item in items)
                 {
                     // Ids to following max ids
-                    item.Id = ++_maxId;
+                    item.Id = NextMaxId();
                     // Fix count to 1
                     item.Count = 1;
                 }
@@ -200,20 +201,24 @@ namespace DMB0001v4.Skills
         /// </summary>
         public void LoadList()
         {
-            // TODO: Change to relative path
-            using (var reader = new StreamReader(_fileFullPath))
+            // Add check, if file exists to make a backup
+            if (FileUtils.assureFile(_fileFullPath))
             {
-                var json = reader.ReadToEnd();
-                _items = JsonConvert.DeserializeObject<List<Unknown>>(json);
-                // TODO: Fix the path top search from within the project
-                FixMaxId();
+                // TODO: Change to relative path
+                using (var reader = new StreamReader(_fileFullPath))
+                {
+                    var json = reader.ReadToEnd();
+                    _items = JsonConvert.DeserializeObject<List<Unknown>>(json);
+                    // TODO: Fix the path top search from within the project
+                    FixMaxId();
+                }
             }
         }
 
         /// <summary>
         /// Creates clone of kept list of items.
         /// </summary>
-        /// <returns></returns>
+        /// <returns>clone of items</returns>
         public List<Unknown> DeepCopy()
         {
             var stash = new List<Unknown>();
@@ -230,6 +235,18 @@ namespace DMB0001v4.Skills
         public void StashList() => _stashCopy = DeepCopy();
 
         /// <summary>
+        /// Reverts local changes in kept list of items.
+        /// </summary>
+        private void Rollback()
+        {
+            if (_stashCopy != null)
+            {
+                _items = _stashCopy;
+                _stashCopy = null;
+            }
+        }
+
+        /// <summary>
         /// Persists current state of items in file.
         /// </summary>
         /// <returns>true means persisted, false otherwise</returns>
@@ -239,6 +256,8 @@ namespace DMB0001v4.Skills
             if (ReadOnlyFile == true) return true;
             // Prepare result var
             bool commit = false;
+            // Add check, if file exists to make a backup
+            if (!FileUtils.assureFile(_fileFullPath)) return false;
             // Backup items in order not to do something funky with data
             if (Backup())
             {
@@ -258,11 +277,7 @@ namespace DMB0001v4.Skills
             else
             {
                 Console.WriteLine($"Rollback. - Couldn't persist a change in {this.GetType().Name}. ");
-                if (_stashCopy != null)
-                {
-                    _items = _stashCopy;
-                    _stashCopy = null;
-                }
+                Rollback();
             }
 
             return commit;
@@ -275,7 +290,9 @@ namespace DMB0001v4.Skills
         public bool Backup()
         {
             // If file lock is ON, skip making new files.
-            if (ReadOnlyFile == true) return true;
+            if (ReadOnlyFile) return true;
+            // Check inner param
+            if (string.IsNullOrWhiteSpace(_fileFullPath)) return false;
             // Prepare catalog for the backup with backup name
             var backupPath = _fileFullPath
                 .Replace("Resources", "Resources\\Backups")
@@ -287,7 +304,7 @@ namespace DMB0001v4.Skills
         }
 
         /// <summary>
-        /// 
+        /// Returns all occurances of items with questions of given item.
         /// </summary>
         /// <param name="item"></param>
         /// <returns>list of  occurances, if exist, empty list otherwise</returns>
@@ -372,10 +389,39 @@ namespace DMB0001v4.Skills
         public List<Unknown> GetAll(List<int> keys) => keys != null && keys.Count != 0 ? _items.FindAll(r => keys.Contains(r.Id)) : new List<Unknown>();
 
         /// <summary>
+        /// Sorts items by id.
+        /// </summary>
+        public void SortById() => _items = _items != null ? _items = _items.OrderBy(o => o.Id).ToList() : null;
+
+        /// <summary>
+        /// REturns whole set of unknowns as Stack lines for debug through console.
+        /// </summary>
+        /// <returns>list of stack lines</returns>
+        public string AsStackLines()
+        {
+            if (_items == null || _items.Count == 0)
+            {
+                return "\t(List of unknowns: Empty)";
+            }
+            else
+            {
+                var stringBuilder = new StringBuilder("\t(List of unknowns:)");
+                // Sort elements in asc order
+                SortById();
+                // Add item after item as line
+                foreach (var item in _items)
+                {
+                    stringBuilder.AppendLine().Append("\t").Append(item.AsStackEntry());
+                }
+                return stringBuilder.ToString();
+            }
+        }
+
+        /// <summary>
         /// Removes all items with key or question of given item.
         /// </summary>
-        /// <param name="key"></param>
-        /// <returns></returns>
+        /// <param name="item">given item</param>
+        /// <returns>true, if changed, false otherwise</returns>
         public bool Remove(Unknown item)
         {
             // Check entry param
@@ -418,7 +464,7 @@ namespace DMB0001v4.Skills
         }
 
         /// <summary>
-        /// Removes all itmes with given keys.
+        /// Removes all items with given keys.
         /// </summary>
         /// <param name="keys">given list of keys</param>
         /// <returns>true means change, false otherwise</returns>
@@ -468,7 +514,7 @@ namespace DMB0001v4.Skills
         }
 
         /// <summary>
-        /// Finds the highest id from unknowns.
+        /// Finds the highest id from items.
         /// </summary>
         public void FixMaxId() => _maxId = _items != null ? _items.Select(t => t.Id).OrderByDescending(t => t).FirstOrDefault() : 1;
 
@@ -479,6 +525,12 @@ namespace DMB0001v4.Skills
         public int MaxId() => _maxId;
 
         /// <summary>
+        /// Returns next top value of ids.
+        /// </summary>
+        /// <returns>next top id</returns>
+        public int NextMaxId() => ++_maxId;
+
+        /// <summary>
         /// Clears pool of kept instances.
         /// </summary>
         public void Clear() => (_items ?? new List<Unknown>()).Clear();
@@ -487,7 +539,7 @@ namespace DMB0001v4.Skills
         /// Returns flag, if unknowns set is empty.
         /// </summary>
         /// <returns>true means empty, false otherwise</returns>
-        public bool IsEmpty() => Count() == 0;
+        public bool IsEmpty() => Count== 0;
 
         /// <summary>
         /// Gives short description about the skill, what it does.
@@ -496,9 +548,9 @@ namespace DMB0001v4.Skills
         public string About => "Represents collection of unknown queries (those unaswered yet).";
 
         /// <summary>
-        /// Returns count of kept unknowns.
+        /// Returns count of kept items.
         /// </summary>
-        /// <returns>Count of retorts</returns>
-        public int Count() => _items != null ? _items.Count : 0;
+        /// <returns>Count of items</returns>
+        public int Count => _items != null ? _items.Count : 0;
     }
 }

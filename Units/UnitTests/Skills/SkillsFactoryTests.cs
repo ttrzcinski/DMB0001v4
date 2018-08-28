@@ -156,6 +156,7 @@ namespace Units.UnitTests.Skills
                 .Returns(brainState);
 
             // Act
+            SkillFactory.Clear();
             var skill = factory.GetSkill("greetings", _context.Object, _provider.Object);
             var skill2 = factory.GetSkill("greetings", _context.Object, _provider.Object);
             var count = SkillFactory.Count;
