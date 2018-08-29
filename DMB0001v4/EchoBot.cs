@@ -170,7 +170,7 @@ namespace DMB0001v4
                         await context.SendActivity(activity);
                         break;
 
-                    case "show me net pic":
+                    /*case "show me net pic":
                         var activity22 = MessageFactory.Attachment(new Attachment[]
                         {
                             new Attachment { ContentUrl = "https://avatars2.githubusercontent.com/u/12435750?s=460&v=4", ContentType = "image/jpg" }
@@ -189,7 +189,7 @@ namespace DMB0001v4
                         });
                         responseText = "Is there an image?";
                         await context.SendActivity(activity3);
-                        break;
+                        break;*/
 
                     case "pancakes?":
                         responseText = dialogUtils.Question("Do you like pancakes?");

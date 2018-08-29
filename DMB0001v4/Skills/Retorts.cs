@@ -254,7 +254,7 @@ namespace DMB0001v4.Skills
             if (!Contains(key, value))
             {
                 var added = new Retort();
-                added.Id = _maxId + 1;
+                added.Id = NextMaxId;
                 added.Question = key;
                 added.Answer = value;
                 _items.Add(added);
@@ -295,7 +295,7 @@ namespace DMB0001v4.Skills
             List<string> keys = items.Select(k => k.Question).ToList();
             // Fix ids in given list of items
             foreach (var item in items)
-                item.Id = ++_maxId;
+                item.Id = NextMaxId;
             // Remove all retors with new keys
             int changed = _items.RemoveAll(r => keys.Contains(r.Question));
             if (changed > 0)
@@ -396,9 +396,18 @@ namespace DMB0001v4.Skills
         private List<Retort> _stashCopy;
 
         /// <summary>
-        /// The highest id of retorts.
+        /// The highest id of items.
         /// </summary>
         private static int _maxId = 0;
+        /// <summary>
+        /// Returns current top value of ids.
+        /// </summary>
+        /// <returns>top id</returns>
+        public int MaxId() => _maxId;
+        /// <summary>
+        /// (Read-only) Next usable id of items.
+        /// </summary>
+        public static int NextMaxId => ++_maxId;
 
         /// <summary>
         /// Blocked empty constructors - this skills is a snigleton.
@@ -599,12 +608,6 @@ namespace DMB0001v4.Skills
         /// </summary>
         /// <returns>true means empty, false otherwise</returns>
         public bool IsEmpty() => Count == 0;
-
-        /// <summary>
-        /// Returns current top value of ids.
-        /// </summary>
-        /// <returns>top id</returns>
-        public int MaxId() => _maxId;
 
         bool ISkillWithList<Retort>.Persist() => Persist();
 

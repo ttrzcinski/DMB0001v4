@@ -57,7 +57,7 @@ namespace DMB0001v4.Skills
         /// <summary>
         /// (Read-only) Next usable id of items.
         /// </summary>
-        public int NextMaxId => _maxId + 1;
+        public int NextMaxId => ++_maxId;
 
         /// <summary>
         /// Obtains instance of this class with passing context and state.
