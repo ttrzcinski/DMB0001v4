@@ -99,6 +99,22 @@ namespace DMB0001v4
                     }
                 }
 
+                // TODO ADD HELP AS LIST OF COMMANDS
+
+                // Process image activity, if ther is a nned t download one
+                if (responseText == null)
+                {
+                    var imager = Images.Instance;
+                    responseText = imager.Process(context.Activity.Text);
+                    if (responseText.StartsWith("imageget.", StringComparison.Ordinal) && responseText.Length > 9))
+                    {
+                        var imgName = responseText.Split(".")[1];
+                        var activity_img = imager.ShowActivity(imgName);
+                            await context.SendActivity(activity_img);
+                        return;
+                    }
+                }
+
                 switch (lowText)
                 {
                     case "how old are you?":
