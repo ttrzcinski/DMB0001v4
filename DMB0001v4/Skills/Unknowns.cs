@@ -202,7 +202,7 @@ namespace DMB0001v4.Skills
         public void LoadList()
         {
             // Add check, if file exists to make a backup
-            if (FileUtils.assureFile(_fileFullPath))
+            if (FileUtils.AssureFile(_fileFullPath))
             {
                 // TODO: Change to relative path
                 using (var reader = new StreamReader(_fileFullPath))
@@ -257,7 +257,7 @@ namespace DMB0001v4.Skills
             // Prepare result var
             bool commit = false;
             // Add check, if file exists to make a backup
-            if (!FileUtils.assureFile(_fileFullPath)) return false;
+            if (!FileUtils.AssureFile(_fileFullPath)) return false;
             // Backup items in order not to do something funky with data
             if (Backup())
             {

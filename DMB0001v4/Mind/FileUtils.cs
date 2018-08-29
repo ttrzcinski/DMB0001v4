@@ -10,12 +10,12 @@ namespace DMB0001v4.Mind
         /// </summary>
         /// <param name="path">given full filepath</param>
         /// <returns>true means assured, fale means errors</returns>
-        public static bool assureFile(string path)
+        public static bool AssureFile(string path)
         {
             // Check entry params
             if (string.IsNullOrWhiteSpace(path)) return false;
             // Prepare return result
-            bool result = false;
+            var result = false;
             // Check, if file exist
             if (File.Exists(path))
             {
@@ -23,7 +23,7 @@ namespace DMB0001v4.Mind
             }
             else
             {
-                string content = path.EndsWith(".json", StringComparison.Ordinal) ? "[ ]" : " ";
+                var content = path.EndsWith(".json", StringComparison.Ordinal) ? "[ ]" : " ";
                 StreamWriter fileWrite = null;
                 try
                 {
@@ -51,6 +51,16 @@ namespace DMB0001v4.Mind
                 }
             }
             return result;
+        }
+
+        /// <summary>
+        /// Generates unique name of file.
+        /// </summary>
+        /// <returns>unique name of file</returns>
+        public static string GenerateUniqueFileName(string extension)
+        {
+            if (string.IsNullOrWhiteSpace(extension)) extension = "dafile";
+            return $"{DateTime.Now.Ticks}.{extension}";
         }
     }
 }

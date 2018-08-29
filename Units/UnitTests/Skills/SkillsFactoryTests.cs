@@ -23,7 +23,7 @@ namespace Units.UnitTests.Skills
             _factory = SkillFactory.GetInstance();
         }
 
-        // TODO Cover get instance, if there was none
+        // Cover get instance, if there was none
         [Fact]
         public void GetInstanceTest()
         {
@@ -207,13 +207,9 @@ namespace Units.UnitTests.Skills
 
             // Assert
             if (given != null && given.Equals("hi"))
-            {
                 Assert.NotNull(actual);
-            }
             else
-            {
                 Assert.Null(actual);
-            }
         }
     }
 }

@@ -172,7 +172,7 @@ namespace Units.UnitTests.Skills
 
             // Act
             retorts.Clear();
-            retorts.LoadRetorts();
+            retorts.Load();
             var actual = retorts.Count;
 
             // Assert

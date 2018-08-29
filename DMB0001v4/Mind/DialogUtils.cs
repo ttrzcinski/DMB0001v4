@@ -20,7 +20,7 @@ namespace DMB0001v4.Mind
         private static BrainState _state;
 
         /// <summary>
-        /// Kept list of reponses to risen questions.
+        /// Kept list of responses to risen questions.
         /// </summary>
         private static Dictionary<string, string> _responses;
 
@@ -52,34 +52,34 @@ namespace DMB0001v4.Mind
         /// </summary>
         private void initLocalizedAnswers()
         {
-            if (_responses == null)
-            {
-                // Default for safety
-                var _defaultResponses = new Dictionary<string, string>();
-                _defaultResponses.Add("response_greet_hello", "Hello You..");
-                _defaultResponses.Add("response_greet_weve", "We've already greet before..");
-                _defaultResponses.Add("response_bye_goodbye", "Goodbye.");
-                _defaultResponses.Add("response_bye_weve", "We've already said goodbye..");
+            if (_responses != null) return;
+            // Default for safety
+            var defaultResponses = new Dictionary<string, string>();
+            defaultResponses.Add("response_greet_hello", "Hello You..");
+            defaultResponses.Add("response_greet_weve", "We've already greet before..");
+            defaultResponses.Add("response_bye_goodbye", "Goodbye.");
+            defaultResponses.Add("response_bye_weve", "We've already said goodbye..");
 
-                _responses = new Dictionary<string, string>();
-                try
-                {
-                    var value = Phrases.response_greet_hello;
-                    _responses.Clear();
-                    _responses.Add("response_greet_hello", Phrases.response_greet_hello);
-                    _responses.Add("response_greet_weve", Phrases.response_greet_weve);
-                    _responses.Add("response_bye_goodbye", Phrases.response_bye_goodbye);
-                    _responses.Add("response_bye_weve", Phrases.response_bye_weve);
-                }
-                catch (KeyNotFoundException keyNotFound)
-                {
-                    Console.WriteLine("Couldn't obtain Phrases through lazy - used defaults from EN.");
-                    _responses = _defaultResponses;
-                }
-                catch (Exception exception_1)
-                {
-                    Console.WriteLine("Couldn't obtain Phrases - used defaults from EN.");
-                }
+            _responses = new Dictionary<string, string>();
+            try
+            {
+                var value = Phrases.response_greet_hello;
+                _responses.Clear();
+                _responses.Add("response_greet_hello", Phrases.response_greet_hello);
+                _responses.Add("response_greet_weve", Phrases.response_greet_weve);
+                _responses.Add("response_bye_goodbye", Phrases.response_bye_goodbye);
+                _responses.Add("response_bye_weve", Phrases.response_bye_weve);
+            }
+            catch (KeyNotFoundException keyNotFound)
+            {
+                Console.WriteLine("Couldn't obtain Phrases through lazy - used defaults from EN.");
+                Console.WriteLine(keyNotFound.ToString());
+                _responses = defaultResponses;
+            }
+            catch (Exception exception_1)
+            {
+                Console.WriteLine("Couldn't obtain Phrases - used defaults from EN.");
+                Console.WriteLine(exception_1.ToString());
             }
         }
 
@@ -89,10 +89,7 @@ namespace DMB0001v4.Mind
         /// <returns>Greeting</returns>
         public string Greeting()
         {
-            if (_state == null)
-            {
-                throw new ArgumentNullException("_state", "_state is null.");
-            }
+            if (_state == null) throw new ArgumentNullException("_state is null.");
             initLocalizedAnswers();
             var response = _state.SaidHi == false || (_state.SaidByeAfter == true && _state.SaidHi == true)
                 ? _responses["response_greet_hello"]
@@ -111,10 +108,7 @@ namespace DMB0001v4.Mind
         /// <returns>Valediction</returns>
         public string Valediction()
         {
-            if (_state == null)
-            {
-                throw new ArgumentNullException("_state is null.");
-            }
+            if (_state == null) throw new ArgumentNullException("_state is null.");
             initLocalizedAnswers();
             var response = _state.SaidHi == false || (_state.SaidByeAfter == true && _state.SaidHi == true)
                 ? _responses["response_bye_goodbye"] //Phrases..response_bye_goodbye

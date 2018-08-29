@@ -102,10 +102,7 @@ namespace DMB0001v4
                 switch (lowText)
                 {
                     case "how old are you?":
-                        DateTime dob = new DateTime(2018, 08, 28, 09, 24, 00);
-                        DateTime now = DateTime.Now;
-                        var days = Math.Ceiling(dob.Subtract(now).TotalDays);
-                        responseText = $"I'm {days} days old since {dob.ToString()}.";//21.08.2018 09.24
+                        responseText = $"I'm {TimeUtils.HowOldInDays()} days old.";
                         break;
 
                     case "where are you?":
@@ -212,7 +209,7 @@ namespace DMB0001v4
                         // Mark error on adding unknown
                         if (responseText == null)
                         {
-                            // TODO Add here use (with random) of list of 10 possible 'i dun't know's
+                            // TODO Add here use (with random) of list of 10 possible 'i don't know's
                             // Presents - 'i dun't know' answer
                             responseText =
                                 $"Turn {_state.TurnCount}: I didn't get that, you said: '{context.Activity.Text}'";
@@ -226,13 +223,8 @@ namespace DMB0001v4
                 }
 
                 // Echo back to the user whatever they typed - responseSpeak, if not null, will be read to user
-                if (responseActivity != null)
-                {
-                    await context.SendActivity(responseActivity);
-                }
-                if (responseText != null) {
-                    await context.SendActivity(responseText, responseSpeak, null);//, "acceptingInput");
-                }
+                if (responseActivity != null) await context.SendActivity(responseActivity);
+                if (responseText != null) await context.SendActivity(responseText, responseSpeak, null);//, "acceptingInput");
             }
         }
     }

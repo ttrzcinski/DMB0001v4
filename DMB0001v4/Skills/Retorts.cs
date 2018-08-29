@@ -253,7 +253,10 @@ namespace DMB0001v4.Skills
             // Check previous count to confirm, that an element was added
             if (!Contains(key, value))
             {
-                var added = new Retort { Id = _maxId + 1, Question = key, Answer = value };
+                var added = new Retort();
+                added.Id = _maxId + 1;
+                added.Question = key;
+                added.Answer = value;
                 _items.Add(added);
                 //If persisted, commit, else rollback
                 if (Persist())
@@ -395,7 +398,7 @@ namespace DMB0001v4.Skills
         /// <summary>
         /// The highest id of retorts.
         /// </summary>
-        private static int _maxId = -1;
+        private static int _maxId = 0;
 
         /// <summary>
         /// Blocked empty constructors - this skills is a snigleton.
@@ -448,23 +451,29 @@ namespace DMB0001v4.Skills
             {
                 _items = new List<Retort>();
                 // Read from file retorts
-                LoadRetorts();
+                Load();
             }
         }
 
         /// <summary>
         /// Reads JSON file with retorts.
         /// </summary>
-        public void LoadRetorts()
+        public void Load()
         {
-            // TODO: Change to relative path
-            using (var reader = new StreamReader(_fileFullPath))
+            // Assure presence of file
+            if (FileUtils.AssureFile(_fileFullPath))
             {
-                var json = reader.ReadToEnd();
-                _items = JsonConvert.DeserializeObject<List<Retort>>(json);
-                // TODO: Fix the path top search from within the project
-                FixMaxId();
+                // TODO: Change to relative path
+                using (var reader = new StreamReader(_fileFullPath))
+                {
+                    var json = reader.ReadToEnd();
+                    _items = JsonConvert.DeserializeObject<List<Retort>>(json);
+                    // TODO: Fix the path top search from within the project
+                    FixMaxId();
+                }
             }
+            else
+                Console.WriteLine($"Couldn't read file {_fileFullPath}.");
         }
 
         /// <summary>
@@ -489,7 +498,7 @@ namespace DMB0001v4.Skills
         /// Returns count of all kept retorts.
         /// </summary>
         /// <returns>count of all kept retorts</returns>
-        public int GetCount() => (_items ?? new List<Retort>()).Count;
+        public int GetCount() => _items != null ? _items.Count : 0;
 
         /// <summary>
         /// Clears pool of kept instances.
@@ -501,23 +510,10 @@ namespace DMB0001v4.Skills
         }
 
         /// <summary>
-        /// Creates clone of kept list of items.
-        /// </summary>
-        /// <returns>clone of items</returns>
-        internal List<Retort> DeepCopy()
-        {
-            var stash = new List<Retort>();
-            _items.ForEach((item) =>
-            {
-                stash.Add(item);
-            });
-            return stash;
-        }
-
-        /// <summary>
         /// Makes backup copy of current list of items.
         /// </summary>
-        public void StashList() => _stashCopy = DeepCopy();
+        public void StashList() 
+            => _stashCopy = _items.Select(item => new Retort { Id = item.Id, Question = item.Question, Answer = item.Answer }).ToList();
 
         /// <summary>
         /// 

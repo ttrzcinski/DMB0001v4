@@ -24,9 +24,7 @@ namespace DMB0001v4.Model
         /// Returns concatenated form of question to list it.
         /// </summary>
         /// <returns>id) question line</returns>
-        public string AsStackEntry()
-        {
-            return $"{Id}) {Pattern_question}: with {Things_question} and the answer: {Pattern_answer} with {Things_answer}";
-        }
+        public string AsStackEntry() 
+            => $"{Id}) {Pattern_question}: with {Things_question} and the answer: {Pattern_answer} with {Things_answer}";
     }
 }

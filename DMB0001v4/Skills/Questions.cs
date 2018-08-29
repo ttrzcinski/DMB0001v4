@@ -1,42 +1,17 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using DMB0001v4.Model;
 using DMB0001v4.Providers;
 using Microsoft.Bot.Builder;
 using Newtonsoft.Json;
 using System.Linq;
+using DMB0001v4.Mind;
 
 namespace DMB0001v4.Skills
 {
     public class Questions : ISkill
     {
-        /// <summary>
-        /// PRocesses given question with know patterns of questions in order to extract facts, check common knowledge aboput them and put it to the answer.
-        /// </summary>
-        /// <param name="given">given question</param>
-        /// <returns>answer wit hfacts, if found, null otherwise</returns>
-        public string Process(string given)
-        {
-            // Check entry param
-            if (string.IsNullOrWhiteSpace(given)) return null;
-            //Change to lower case
-            given = given.Trim().ToLower();
-            string response = null;
-            // Check in known patterns
-            foreach (var known in  _knownPatterns)
-            {
-                if (known.Pattern_question.Equals(given))
-                {
-                    //TODO Add processing with facts
-                    response = known.Pattern_answer;
-                    break;
-                }
-            }
-            return response;
-        }
-
-        // --- ---- --- LEAVE EVERYTHING BELOW THIS LINE AS IT IS - IT'S OK --- ----- ---
-
         /// <summary>
         /// State of currently remembered facts and knowledge.
         /// </summary>
@@ -53,20 +28,34 @@ namespace DMB0001v4.Skills
         /// <summary>
         /// Hardcoded path to fast retorts file.
         /// </summary>
-        private const string RetortsFullPath = "C:\\vsproj\\DMB0001v4\\DMB0001v4\\DMB0001v4\\Resources\\known_patterns.json";
+        private string _fullPath { get; set; }
         /// <summary>
-        /// Keopt list of known question patterns.
+        /// Default path, if file's full path was not set.
+        /// </summary>
+        private string _defaultFullPath = "C:\\vsproj\\DMB0001v4\\DMB0001v4\\DMB0001v4\\Resources\\known_patterns.json";
+
+        /// <summary>
+        /// Kept list of known question patterns.
         /// </summary>
         private List<Question> _knownPatterns;
         /// <summary>
         /// The highest id of known patterns.
         /// </summary>
-        private static int _patternsMaxId = -1;
+        private static int _maxId;
+        /// <summary>
+        /// Returns top id of all known patterns.
+        /// </summary>
+        /// <returns>top id, if there are some patterns, on null or empty returns 0</returns>
+        public int MaxId() => _maxId;
+
         /// <summary>
         /// Blocked empty constructors - this skills is a snigleton.
         /// </summary>
         private Questions()
-        { }
+        {
+            // Create new DialogUtils to hide logic in sub-methods
+            AssureQuestions();
+        }
 
         /// <summary>
         /// Creates new instance of questions skill to process given phrase.
@@ -112,55 +101,74 @@ namespace DMB0001v4.Skills
             if (_knownPatterns == null)
             {
                 _knownPatterns = new List<Question>();
+                // Set _maxId to beginning
+                _maxId = 0;
                 // Loading know patterns from file
-                LoadPatterns();
+                Load();
             }
         }
 
         /// <summary>
         /// Reads JSON file with known patterns.
         /// </summary>
-        public void LoadPatterns()
+        public void Load()
         {
-            // TODO: Change to relative path
-            using (var reader = new StreamReader(RetortsFullPath))
-            {
-                var json = reader.ReadToEnd();
-                var items = JsonConvert.DeserializeObject<List<Question>>(json);
-                _knownPatterns = items;
-
-                // TODO: Fix the path top search from within the project
-                FixITToMax();
-            }
+            // If kept path is null, use default
+            if (string.IsNullOrWhiteSpace(_fullPath)) _fullPath = _defaultFullPath;
+            // Assure file to load
+            if (FileUtils.AssureFile(_fullPath))
+                using (var reader = new StreamReader(_fullPath))
+                {
+                    var json = reader.ReadToEnd();
+                    var items = JsonConvert.DeserializeObject<List<Question>>(json);
+                    _knownPatterns = items;
+                    // Fix the path top search from within the project
+                    FixMaxId();
+                }
+            else
+                Console.WriteLine($"Couldn't read file from {_fullPath}.");
         }
 
         /// <summary>
-        /// Finds the highest id from retorts.
+        /// Finds the highest id from items.
         /// </summary>
-        private void FixITToMax()
+        public void FixMaxId()
         {
-            if (_knownPatterns != null) _patternsMaxId = _knownPatterns.Select(t => t.Id).OrderByDescending(t => t).FirstOrDefault();
+            if (_knownPatterns != null) _maxId = _knownPatterns.Select(t => t.Id).OrderByDescending(t => t).FirstOrDefault();
         }
 
         /// <summary>
-        /// Returns top id of all known patterns.
+        /// Returns next top id from items.
         /// </summary>
-        /// <returns>top id, if there are some patterns, on null or empty returns 0</returns>
-        public int RetortsMaxId()
+        /// <returns>next id, which can be used as id for added item</returns>
+        public int NextId() => _maxId < 1 ? 1 : _maxId + 1;
+
+        /// <summary>
+        /// Processes given question with know patterns of questions in order to extract facts,
+        /// check common knowledge about them and put it to the answer.
+        /// </summary>
+        /// <param name="given">given question</param>
+        /// <returns>answer with facts, if found, null otherwise</returns>
+        public string Process(string given)
         {
-            return _patternsMaxId;
+            // Check entry param
+            if (string.IsNullOrWhiteSpace(given)) return null;
+            // Change to lower case
+            given = given.Trim().ToLower();
+            // Check in known patterns
+            return _knownPatterns.Find(x => x.Pattern_question == given)?.Pattern_answer;
         }
 
         /// <summary>
         /// Gives short description about the skill, what it does.
         /// </summary>
         /// <returns>short description</returns>
-        public string About => "Processes questions thyrough common pattern in order to parse 'things' and read all the known details about a 'thing'.";
+        public string About => "Processes questions through common pattern in order to parse 'things' and read all the known details about a 'thing'.";
 
         /// <summary>
-        /// REturns count of known question patterns.
+        /// Returns count of known question patterns.
         /// </summary>
         /// <returns>count of knwon patterns</returns>
-        public int Count => _knownPatterns != null ? _knownPatterns.Count : 0;
+        public int Count => _knownPatterns?.Count ?? 0;
     }
 }
