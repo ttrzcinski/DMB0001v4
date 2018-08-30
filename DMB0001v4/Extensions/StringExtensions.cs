@@ -3,7 +3,7 @@
     public static class StringExtensions
     {
         /// <summary>
-        /// Checkes, if string has some content (not null and not only white spaces).
+        /// Checks, if string has some content (not null and not only white spaces).
         /// </summary>
         /// <param name="input">string to check</param>
         /// <returns>true means has content, false otherwise</returns>

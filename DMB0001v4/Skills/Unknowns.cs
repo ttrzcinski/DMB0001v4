@@ -47,7 +47,7 @@ namespace DMB0001v4.Skills
         public uint MaxId() => _daIndex.Current;
 
         /// <summary>
-        /// File's fille path with items.
+        /// File's file path with items.
         /// </summary>
         public const string _fileFullPath = "C:\\vsproj\\DMB0001v4\\DMB0001v4\\DMB0001v4\\Resources\\unknowns.json";
 
@@ -73,7 +73,7 @@ namespace DMB0001v4.Skills
                 : null;
         }
 
-        uint ISkillWithList<Unknown>.Count => (uint)(_items != null ? _items.Count : 0);
+        uint ISkillWithList<Unknown>.Count => (uint)(_items?.Count ?? 0);
 
         /// <summary>
         /// Adds item to list with previous check, if a-like item already exists. If it exists, it just updates occurance counter of item.
