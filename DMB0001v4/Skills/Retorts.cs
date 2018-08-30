@@ -190,7 +190,7 @@ namespace DMB0001v4.Skills
         /// <param name="key">request of retort</param>
         /// <param name="value">(optional)response of retort</param>
         /// <returns>true means it has, false otherwise</returns>
-        private static bool Contains(string key, string value = null) => 
+        private bool Contains(string key, string value = null) => 
             value == null ?
                 _items.Any(r => r.Question.Equals(key))
                 : _items.Any(r => r.Question.Equals(key) && r.Answer.Equals(value));
@@ -209,12 +209,14 @@ namespace DMB0001v4.Skills
         /// Persists current state of Retorts in file.
         /// </summary>
         /// <returns>true means persisted, false otherwise</returns>
-        internal static bool Persist()
+        internal bool Persist()
         {
             // If file lock is ON, skip making new files.
             if (ReadOnlyFile == true) return true;
             // Prepare result var
             bool commit = false;
+            // Assure file path
+            assureResourceFilePath();
             // Backup retorts in order not to do something funky with data
             if (BackupRetorts())
             {
@@ -244,7 +246,7 @@ namespace DMB0001v4.Skills
         /// <param name="key">request of retort</param>
         /// <param name="value">response of retort</param>
         /// <returns>true means added, false otherwise</returns>
-        private static bool Add(string key, string value, bool nonsense)
+        private bool Add(string key, string value, bool nonsense)
         {
             // Check, if params have content
             if (string.IsNullOrWhiteSpace(key) || string.IsNullOrWhiteSpace(value)) return false;
@@ -384,12 +386,12 @@ namespace DMB0001v4.Skills
         /// <summary>
         /// Hardcoded path to fast retorts file.
         /// </summary>
-        private const string _fileFullPath = "C:\\vsproj\\DMB0001v4\\DMB0001v4\\DMB0001v4\\Resources\\fast_retorts.json";
+        private string _fileFullPath;
 
         /// <summary>
         /// Retorts as quick responses to questions.
         /// </summary>
-        private static List<Retort> _items;
+        private List<Retort> _items;
         /// <summary>
         /// Kept list of items before persisting changes (for rollback).
         /// </summary>
@@ -407,7 +409,7 @@ namespace DMB0001v4.Skills
         /// <summary>
         /// (Read-only) Next usable id of items.
         /// </summary>
-        public static int NextMaxId => ++_maxId;
+        public int NextMaxId => ++_maxId;
 
         /// <summary>
         /// Blocked empty constructors - this skills is a snigleton.
@@ -469,6 +471,8 @@ namespace DMB0001v4.Skills
         /// </summary>
         public void Load()
         {
+            // Assure file path
+            assureResourceFilePath();
             // Assure presence of file
             if (FileUtils.AssureFile(_fileFullPath))
             {
@@ -486,11 +490,22 @@ namespace DMB0001v4.Skills
         }
 
         /// <summary>
+        /// Fills up the file path to resource catalog and default file of retorts.
+        /// </summary>
+        private void assureResourceFilePath()
+        {
+            if (string.IsNullOrWhiteSpace(_fileFullPath))
+                _fileFullPath = FileUtils.ResourcesCatalog() + "fast_retorts.json";
+        }
+
+        /// <summary>
         /// Backups retorts file in order not to loose all those retorts.
         /// </summary>
         /// <returns>true means backup was created, false otherwise</returns>
-        private static bool BackupRetorts()
+        private bool BackupRetorts()
         {
+            // Assure file path
+            assureResourceFilePath();
             // If file lock is ON, skip making new files.
             if (ReadOnlyFile == true) return true;
             // Prepare catalog for the backup with backup name
@@ -623,15 +638,12 @@ namespace DMB0001v4.Skills
 
         public bool Remove(int key) => Remove(key);
 
-        public void FixMaxId()
-        {
-           FixMaxId(false);
-        }
+        public void FixMaxId() => FixMaxId(false);
 
         /// <summary>
         /// Finds the highest id from items.
         /// </summary>
-        internal static void FixMaxId(bool nonsense) => _maxId = _items != null ? _items.Select(t => t.Id).OrderByDescending(t => t).FirstOrDefault() : 1;
+        internal void FixMaxId(bool nonsense) => _maxId = _items != null ? _items.Select(t => t.Id).OrderByDescending(t => t).FirstOrDefault() : 1;
 
         int ISkillWithList<Retort>.Count => Count;
 

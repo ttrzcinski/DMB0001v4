@@ -18,38 +18,32 @@ namespace DMB0001v4.Mind
             // Prepare return result
             var result = false;
             // Check, if file exist
-            if (File.Exists(path))
+            if (File.Exists(path)) return true;
+            var content = path.EndsWith(".json", StringComparison.Ordinal) ? "[ ]" : " ";
+            StreamWriter fileWrite = null;
+            try
             {
+                using (fileWrite = new StreamWriter(path))
+                {
+                    fileWrite.WriteLine(content);
+                }
                 result = true;
             }
-            else
+            catch (IOException ioex)
             {
-                var content = path.EndsWith(".json", StringComparison.Ordinal) ? "[ ]" : " ";
-                StreamWriter fileWrite = null;
-                try
-                {
-                    using (fileWrite = new StreamWriter(path))
+                result = false;
+            }
+            finally
+            {
+                if (fileWrite != null)
+                    try
                     {
-                        fileWrite.WriteLine(content);
+                        fileWrite.Close();
                     }
-                    result = true;
-                }
-                catch (IOException ioex)
-                {
-                    result = false;
-                }
-                finally
-                {
-                    if (fileWrite != null)
-                        try
-                        {
-                            fileWrite.Close();
-                        }
-                        catch (Exception ex)
-                        {
-                            result = false;
-                        }
-                }
+                    catch (Exception ex)
+                    {
+                        result = false;
+                    }
             }
             return result;
         }
@@ -58,7 +52,7 @@ namespace DMB0001v4.Mind
         /// Generates unique name of file.
         /// </summary>
         /// <returns>unique name of file</returns>
-        public static string GenerateUniqueFileName(string extension) 
+        public static string GenerateUniqueFileName(string extension)
             => $"{DateTime.Now.Ticks}.{(string.IsNullOrWhiteSpace(extension) ? extension = "dafile" : extension)}";
 
         /// <summary>
