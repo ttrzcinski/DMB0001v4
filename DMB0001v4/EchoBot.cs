@@ -17,7 +17,9 @@ namespace DMB0001v4
         /// Keeps in one place all known skills.
         /// </summary>
         private SkillFactory _skills;
-
+        /// <summary>
+        /// Kept state of Brain's knowledge.
+        /// </summary>
         private static BrainState _state;
 
         private readonly IConversationStateProvider _conversationStateProvider;
@@ -60,7 +62,7 @@ namespace DMB0001v4
                 string responseText = null;
                 // TODO - if ever speech will be on - changestring responseSpeak = null;
                 string responseSpeak = null;
-                IMessageActivity responseActivity = null;//IActivity
+                IMessageActivity responseActivity = null;
                 // Check, if question was asked
                 if (_state.RisenQuestion != null)
                 {
@@ -78,8 +80,22 @@ namespace DMB0001v4
                     await context.SendActivity(responseText, null, null);
                     return;
                 }
+                // Process image activity, if ther is a nned t download one
+                /*if (responseText == null)
+                {
+                    var imager = Images.Instance;
+                    responseText = imager.Process(context.Activity.Text);
+                    if (responseText.StartsWith("imageget.", StringComparison.Ordinal) && responseText.Length > 9)
+                    {
+                        var imgName = responseText.Split(".")[1];
+                        responseText = null;
+                        var activity_img = imager.ShowActivity(imgName);
+                        await context.SendActivity(activity_img);
+                        return;
+                    }
+                }*/
 
-                // Check, if it's an image
+                // Check, if comming message is an image
                 if (context.Activity.Attachments != null && context.Activity.Attachments.Any())
                 {
                     var imageAttachment = context.Activity.Attachments?.FirstOrDefault(a => a.ContentType.Contains("image"));
@@ -99,24 +115,14 @@ namespace DMB0001v4
                     }
                 }
 
-                // TODO ADD HELP AS LIST OF COMMANDS
-
-                // Process image activity, if ther is a nned t download one
-                if (responseText == null)
-                {
-                    var imager = Images.Instance;
-                    responseText = imager.Process(context.Activity.Text);
-                    if (responseText.StartsWith("imageget.", StringComparison.Ordinal) && responseText.Length > 9))
-                    {
-                        var imgName = responseText.Split(".")[1];
-                        var activity_img = imager.ShowActivity(imgName);
-                            await context.SendActivity(activity_img);
-                        return;
-                    }
-                }
-
                 switch (lowText)
                 {
+                    case "help":
+                        responseText = $"Ok, so it goes like this: Ask a question and maybe.. maybe.. I'll be able to help.." +
+                                       $"\nQuestion lookis like: What is your name? What is a date today?";
+                        // TODO ADD HELP AS LIST OF COMMANDS
+                        break;
+
                     case "how old are you?":
                         responseText = $"I'm {TimeUtils.HowOldInDays()} days old.";
                         break;
@@ -133,6 +139,10 @@ namespace DMB0001v4
                         responseText = _state.BotsName;
                         break;
 
+                    case "what's your name?":
+                        responseText = _state.BotsName;
+                        break;
+
                     case "who made you?":
                         responseActivity = dialogUtils.Author;
                         break;
@@ -143,6 +153,10 @@ namespace DMB0001v4
 
                     case "who wrote you?":
                         responseActivity = dialogUtils.Author;
+                        break;
+
+                    case "what's my name?":
+                        responseText = _state.UsersName;
                         break;
 
                     case "what is my name?":
@@ -170,7 +184,8 @@ namespace DMB0001v4
                         await context.SendActivity(activity);
                         break;
 
-                    /*case "show me net pic":
+                    // TODO Migrate those two to Images
+                    case "show me net pic":
                         var activity22 = MessageFactory.Attachment(new Attachment[]
                         {
                             new Attachment { ContentUrl = "https://avatars2.githubusercontent.com/u/12435750?s=460&v=4", ContentType = "image/jpg" }
@@ -189,13 +204,17 @@ namespace DMB0001v4
                         });
                         responseText = "Is there an image?";
                         await context.SendActivity(activity3);
-                        break;*/
+                        break;
 
                     case "pancakes?":
                         responseText = dialogUtils.Question("Do you like pancakes?");
                         break;
 
-                    case "do you like pancakes??":
+                    case "like pancakes?":
+                        responseText = dialogUtils.Question("Do you like pancakes?");
+                        break;
+
+                    case "do you like pancakes?":
                         responseText = dialogUtils.Question("Do you like pancakes?");
                         break;
 

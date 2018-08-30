@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using DMB0001v4.Extensions;
 
 namespace DMB0001v4.Mind
 {
@@ -57,10 +58,30 @@ namespace DMB0001v4.Mind
         /// Generates unique name of file.
         /// </summary>
         /// <returns>unique name of file</returns>
-        public static string GenerateUniqueFileName(string extension)
+        public static string GenerateUniqueFileName(string extension) 
+            => $"{DateTime.Now.Ticks}.{(string.IsNullOrWhiteSpace(extension) ? extension = "dafile" : extension)}";
+
+        /// <summary>
+        /// Returns project's catalog.
+        /// </summary>
+        /// <returns>project's catalog</returns>
+        public static string ProjectCatalog()
         {
-            if (string.IsNullOrWhiteSpace(extension)) extension = "dafile";
-            return $"{DateTime.Now.Ticks}.{extension}";
+            string result = null;
+            var debugPath = AppDomain.CurrentDomain.BaseDirectory;
+            if (debugPath.HasContent())
+            {
+                int binOccurence = debugPath.IndexOf("bin");
+                if (binOccurence > -1)
+                    return debugPath.Substring(0, debugPath.IndexOf("bin"));
+            }
+            return result;
         }
+
+        /// <summary>
+        /// Returns resources catalog
+        /// </summary>
+        /// <returns></returns>
+        public static string ResourcesCatalog() => ProjectCatalog() + "Resources\\";
     }
 }
