@@ -8,7 +8,7 @@ namespace DMB0001v4.Model
     /// </summary>
     internal class Question
     {
-        public int Id { get; set; }
+        public uint Id { get; set; }
         public string Pattern_question { get; set; }
         public List<string> Things_question { get; set; }
         public string Pattern_answer { get; set; }

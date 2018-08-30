@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using DMB0001v4.Model;
 
 namespace DMB0001v4.Skills
 {
@@ -23,7 +22,7 @@ namespace DMB0001v4.Skills
 
         bool RemoveAll(List<uint> keys);
 
-        void initItems();
+        void InitItems();
 
         void Clear();
 

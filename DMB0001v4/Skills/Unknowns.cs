@@ -161,7 +161,7 @@ namespace DMB0001v4.Skills
         {
             _state = conversationStateProvider.GetConversationState<BrainState>(context);
             // Assures, that list of items is not null
-            initItems();
+            InitItems();
         }
 
         /// <summary>
@@ -191,12 +191,12 @@ namespace DMB0001v4.Skills
         /// <summary>
         /// Inner constructor blocked to keep it a singleton.
         /// </summary>
-        private Unknowns() => initItems();
+        private Unknowns() => InitItems();
 
         /// <summary>
         /// Assures, that items are set and loaded, when needed.
         /// </summary>
-        public void initItems()
+        public void InitItems()
         {
             if (_items == null)
             {

@@ -1,10 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+using System.Linq;
 
 namespace DMB0001v4.Structures
 {
     /// <summary>
-    /// Creates new instance of index sequence for any structure of collection working in Resources or Dataset.
+    /// Creates new instance of index sequence for any structure of collection working in Resources or Data Set.
     /// </summary>
     public class DaIndex
     {
@@ -18,12 +18,12 @@ namespace DMB0001v4.Structures
 
         public uint Next() => GrabNext();
 
-        public void ReturnUnused(uint unused)
+        /*public void ReturnUnused(uint unused)
         {
             if (_unusedValues == null)
                 _unusedValues = new List<uint>();
             _unusedValues.Add(unused);
-        }
+        }*/
 
         private uint FromUnused()
         {
@@ -38,13 +38,16 @@ namespace DMB0001v4.Structures
 
         private uint GrabNext()
         {
-            uint result = FromUnused();
-            if (result != 0)
-                return result;
-            else
-                return ++_currVal;
+            var result = FromUnused();
+            return result != 0 ? result : ++_currVal;
         }
 
-        public void MarkUseds(List<uint> used) => _unusedValues.RemoveAll(x => used.Contains(x));
+        public void MarkUseds(List<uint> used)
+        {
+            // Remove those used
+            _unusedValues.RemoveAll(x => used.Contains(x));
+            // Update current value to top from outcome set 
+            _currVal = (uint)(_unusedValues?.OrderByDescending(t => t).FirstOrDefault() ?? 1);
+        }
     }
 }

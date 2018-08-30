@@ -215,7 +215,7 @@ namespace DMB0001v4.Skills
             // Prepare result var
             bool commit = false;
             // Assure file path
-            assureResourceFilePath();
+            AssureResourceFilePath();
             // Backup retorts in order not to do something funky with data
             if (BackupRetorts())
             {
@@ -254,7 +254,7 @@ namespace DMB0001v4.Skills
             if (!Contains(key, value))
             {
                 var added = new Retort();
-                added.Id = _daindex.Next();
+                added.Id = _daIndex.Next();
                 added.Question = key;
                 added.Answer = value;
                 _items.Add(added);
@@ -287,7 +287,7 @@ namespace DMB0001v4.Skills
             List<string> keys = items.Select(k => k.Question).ToList();
             // Fix ids in given list of items
             foreach (var item in items)
-                item.Id = _daindex.Next();
+                item.Id = _daIndex.Next();
             // Remove all retors with new keys
             int changed = _items.RemoveAll(r => keys.Contains(r.Question));
             if (changed > 0)
@@ -416,21 +416,10 @@ namespace DMB0001v4.Skills
         /// </summary>
         private List<Retort> _stashCopy;
 
-        private static DaIndex _daindex;
-
         /// <summary>
-        /// The highest id of items.
+        /// Holds index for this skill.
         /// </summary>
-        //private static int _maxId = 0;
-        /// <summary>
-        /// Returns current top value of ids.
-        /// </summary>
-        /// <returns>top id</returns>
-        //public int MaxId() => _maxId;
-        /// <summary>
-        /// (Read-only) Next usable id of items.
-        /// </summary>
-        //public int NextMaxId => ++_maxId;
+        private static DaIndex _daIndex;
 
         /// <summary>
         /// Blocked empty constructors - this skills is a snigleton.
@@ -447,7 +436,7 @@ namespace DMB0001v4.Skills
         {
             _state = conversationStateProvider.GetConversationState<BrainState>(context);
             // Create new DialogUtils to hide logic in sub-methods
-            initItems();
+            InitItems();
         }
 
         /// <summary>
@@ -477,11 +466,13 @@ namespace DMB0001v4.Skills
         /// <summary>
         /// Assures presence of retorts by initializing them and reading content from retorts file.
         /// </summary>
-        public void initItems()
+        public void InitItems()
         {
             if (_items == null)
             {
                 _items = new List<Retort>();
+                // Set _maxId to beginning
+                _daIndex.Zero();
                 // Read from file retorts
                 Load();
             }
@@ -493,16 +484,15 @@ namespace DMB0001v4.Skills
         public void Load()
         {
             // Assure file path
-            assureResourceFilePath();
+            AssureResourceFilePath();
             // Assure presence of file
             if (FileUtils.AssureFile(_fileFullPath))
             {
-                // TODO: Change to relative path
                 using (var reader = new StreamReader(_fileFullPath))
                 {
                     var json = reader.ReadToEnd();
                     _items = JsonConvert.DeserializeObject<List<Retort>>(json);
-                    // TODO: Fix the path top search from within the project
+                    // Fix indexes after loading entities from file
                     FixMaxId();
                 }
             }
@@ -513,7 +503,7 @@ namespace DMB0001v4.Skills
         /// <summary>
         /// Fills up the file path to resource catalog and default file of retorts.
         /// </summary>
-        private void assureResourceFilePath()
+        private void AssureResourceFilePath()
         {
             if (string.IsNullOrWhiteSpace(_fileFullPath))
                 _fileFullPath = FileUtils.ResourcesCatalog() + "fast_retorts.json";
@@ -526,9 +516,9 @@ namespace DMB0001v4.Skills
         private bool BackupRetorts()
         {
             // Assure file path
-            assureResourceFilePath();
+            AssureResourceFilePath();
             // If file lock is ON, skip making new files.
-            if (ReadOnlyFile == true) return true;
+            if (ReadOnlyFile) return true;
             // Prepare catalog for the backup with backup name
             var backupPath = _fileFullPath
                 .Replace("Resources", "Resources\\Backups")
@@ -552,6 +542,8 @@ namespace DMB0001v4.Skills
         {
             if (_items != null)
                 _items.Clear();
+            else
+                InitItems();
         }
 
         /// <summary>
@@ -662,12 +654,12 @@ namespace DMB0001v4.Skills
         /// </summary>
         public void FixMaxId()
         {
-            var countedtop = (uint)(_items != null ? _items.Select(t => t.Id).OrderByDescending(t => t).FirstOrDefault() : 1);
-            List<uint> used = _items != null ? _items.Select(t => t.Id).OrderByDescending(t => t).ToList() : new List<uint>();
-            _daindex.MarkUseds(used);
+            //var countedTop = (uint)(_items != null ? _items.Select(t => t.Id).OrderByDescending(t => t).FirstOrDefault() : 1);
+            var used = _items != null ? _items.Select(t => t.Id).OrderByDescending(t => t).ToList() : new List<uint>();
+            _daIndex.MarkUseds(used);
         }
 
-        public uint MaxId() => _daindex.Current;
+        public uint MaxId() => _daIndex.Current;
 
         uint ISkillWithList<Retort>.Count => (uint)Count;
 
