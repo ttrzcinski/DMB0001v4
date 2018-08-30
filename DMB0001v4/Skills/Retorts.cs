@@ -9,6 +9,7 @@ using System.Text;
 using DMB0001v4.Model;
 using System.Text.RegularExpressions;
 using DMB0001v4.Mind;
+using DMB0001v4.Structures;
 
 namespace DMB0001v4.Skills
 {
@@ -153,7 +154,7 @@ namespace DMB0001v4.Skills
         /// </summary>
         /// <param name="id">given id</param>
         /// <returns>list of  occurances, if exist, empty list otherwise</returns>
-        internal List<Retort> Occurances(int id)
+        internal List<Retort> Occurances(uint id)
             => _items.Where(k => k.Id == id).ToList();
 
         /// <summary>
@@ -161,7 +162,7 @@ namespace DMB0001v4.Skills
         /// </summary>
         /// <param name="ids">given ids</param>
         /// <returns></returns>
-        internal List<Retort> Occurances(List<int> ids)
+        internal List<Retort> Occurances(List<uint> ids)
         {
             // Check entry params
             if (ids == null || ids.Count == 0) return new List<Retort>();
@@ -195,9 +196,7 @@ namespace DMB0001v4.Skills
                 _items.Any(r => r.Question.Equals(key))
                 : _items.Any(r => r.Question.Equals(key) && r.Answer.Equals(value));
 
-        internal Retort Get(int key) => _items.Find(r => r.Id == key);
-
-        internal List<Retort> GetAll(List<int> keys)
+        internal List<Retort> GetAll(List<uint> keys)
         {
             // Check entry params
             if (keys == null || keys.Count == 0) return new List<Retort>();
@@ -238,7 +237,6 @@ namespace DMB0001v4.Skills
         //internal bool Add(Retort item) => Add(item.Question, item.Answer);
 
         //bool resultOfAdd = retorts.Add("hi", "hello");
-        //bool removal = retorts.Remove("hi");
 
         /// <summary>
         /// Adds new retort to set.
@@ -246,7 +244,7 @@ namespace DMB0001v4.Skills
         /// <param name="key">request of retort</param>
         /// <param name="value">response of retort</param>
         /// <returns>true means added, false otherwise</returns>
-        private bool Add(string key, string value, bool nonsense)
+        public bool Add(string key, string value)
         {
             // Check, if params have content
             if (string.IsNullOrWhiteSpace(key) || string.IsNullOrWhiteSpace(value)) return false;
@@ -256,14 +254,14 @@ namespace DMB0001v4.Skills
             if (!Contains(key, value))
             {
                 var added = new Retort();
-                added.Id = NextMaxId;
+                added.Id = _daindex.Next();
                 added.Question = key;
                 added.Answer = value;
                 _items.Add(added);
                 //If persisted, commit, else rollback
                 if (Persist())
                 {
-                    FixMaxId(false);
+                    FixMaxId();
                     result = true;
                 }
                 else
@@ -271,14 +269,6 @@ namespace DMB0001v4.Skills
             }
             return result;
         }
-
-        /// <summary>
-        /// Adds new retort to set.
-        /// </summary>
-        /// <param name="key">request of retort</param>
-        /// <param name="value">response of retort</param>
-        /// <returns>true means added, false otherwise</returns>
-        public bool Add(string key, string value) => Add(key, value, false);
 
         /// <summary>
         /// Adds given retorts to kept set.
@@ -297,7 +287,7 @@ namespace DMB0001v4.Skills
             List<string> keys = items.Select(k => k.Question).ToList();
             // Fix ids in given list of items
             foreach (var item in items)
-                item.Id = NextMaxId;
+                item.Id = _daindex.Next();
             // Remove all retors with new keys
             int changed = _items.RemoveAll(r => keys.Contains(r.Question));
             if (changed > 0)
@@ -313,6 +303,35 @@ namespace DMB0001v4.Skills
             }
             return result;
         }
+
+        /// <summary>
+        /// Removes pointed retort from set.
+        /// </summary>
+        /// <param name="key">item's id</param>
+        /// <returns>true means removed, false otherwise</returns>
+        public bool Remove(uint key)
+        {
+            // Check, if param have content
+            if (key > 0) return false;
+            // Prepare return falg
+            bool result = false;
+            // Prepare backup list
+            var backupList = _items;
+            // Remove retors from list
+            int listOfRemoved = _items.RemoveAll(r => r.Id == key);
+            if (listOfRemoved > 0)
+            {
+                // Commit, if worked, rollback otherwise
+                if (Persist())
+                {
+                    FixMaxId();
+                    result = true;
+                }
+                else
+                    _items = backupList;
+            }
+            return result;
+        } 
 
         /// <summary>
         /// Removes pointed retort from set.
@@ -397,19 +416,21 @@ namespace DMB0001v4.Skills
         /// </summary>
         private List<Retort> _stashCopy;
 
+        private static DaIndex _daindex;
+
         /// <summary>
         /// The highest id of items.
         /// </summary>
-        private static int _maxId = 0;
+        //private static int _maxId = 0;
         /// <summary>
         /// Returns current top value of ids.
         /// </summary>
         /// <returns>top id</returns>
-        public int MaxId() => _maxId;
+        //public int MaxId() => _maxId;
         /// <summary>
         /// (Read-only) Next usable id of items.
         /// </summary>
-        public int NextMaxId => ++_maxId;
+        //public int NextMaxId => ++_maxId;
 
         /// <summary>
         /// Blocked empty constructors - this skills is a snigleton.
@@ -545,7 +566,7 @@ namespace DMB0001v4.Skills
         /// <param name="key"></param>
         /// <param name="item"></param>
         /// <returns></returns>
-        internal bool Update(int key, Retort item)
+        internal bool Update(uint key, Retort item)
         {
             // Check entry param
             if (item == null || string.IsNullOrWhiteSpace(item.Question)) return false;
@@ -592,7 +613,7 @@ namespace DMB0001v4.Skills
         /// </summary>
         /// <param name="keys">given list of keys</param>
         /// <returns>true means change, false otherwise</returns>
-        public bool RemoveAll(List<int> keys)
+        public bool RemoveAll(List<uint> keys)
         {
             // Check entry params
             if (keys == null || keys.Count == 0) return false;
@@ -630,22 +651,25 @@ namespace DMB0001v4.Skills
 
         bool ISkillWithList<Retort>.AddAll(List<Retort> items) => AddAll(items);
 
-        Retort ISkillWithList<Retort>.Get(int key) => Get(key);
+        Retort ISkillWithList<Retort>.Get(uint key) => _items.Find(r => r.Id == key);
 
-        List<Retort> ISkillWithList<Retort>.GetAll(List<int> keys) => GetAll(keys);
+        List<Retort> ISkillWithList<Retort>.GetAll(List<uint> keys) => GetAll(keys);
 
-        bool ISkillWithList<Retort>.Update(int key, Retort item) => this.Update(key, item);
-
-        public bool Remove(int key) => Remove(key);
-
-        public void FixMaxId() => FixMaxId(false);
+        bool ISkillWithList<Retort>.Update(uint key, Retort item) => this.Update(key, item);
 
         /// <summary>
         /// Finds the highest id from items.
         /// </summary>
-        internal void FixMaxId(bool nonsense) => _maxId = _items != null ? _items.Select(t => t.Id).OrderByDescending(t => t).FirstOrDefault() : 1;
+        public void FixMaxId()
+        {
+            var countedtop = (uint)(_items != null ? _items.Select(t => t.Id).OrderByDescending(t => t).FirstOrDefault() : 1);
+            List<uint> used = _items != null ? _items.Select(t => t.Id).OrderByDescending(t => t).ToList() : new List<uint>();
+            _daindex.MarkUseds(used);
+        }
 
-        int ISkillWithList<Retort>.Count => Count;
+        public uint MaxId() => _daindex.Current;
+
+        uint ISkillWithList<Retort>.Count => (uint)Count;
 
         /// <summary>
         /// Gives short description about the skill, what it does.

@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using DMB0001v4.Model;
 
 namespace DMB0001v4.Skills
 {
@@ -12,25 +13,25 @@ namespace DMB0001v4.Skills
 
         bool AddAll(List<T> items);
 
-        T Get(int key);
+        T Get(uint key);
 
-        List<T> GetAll(List<int> keys);
+        List<T> GetAll(List<uint> keys);
 
-        bool Update(int key, T item);
+        bool Update(uint key, T item);
 
-        bool Remove(int key);
+        bool Remove(uint key);
 
-        bool RemoveAll(List<int> keys);
+        bool RemoveAll(List<uint> keys);
 
         void initItems();
 
         void Clear();
 
-        new int Count { get; }
+        uint Count { get; }
 
         bool IsEmpty();
 
-        int MaxId();
+        uint MaxId();
 
         void FixMaxId();
 

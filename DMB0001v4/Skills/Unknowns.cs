@@ -1,6 +1,7 @@
 ﻿using DMB0001v4.Mind;
 using DMB0001v4.Model;
 using DMB0001v4.Providers;
+using DMB0001v4.Structures;
 using Microsoft.Bot.Builder;
 using Newtonsoft.Json;
 using System;
@@ -37,7 +38,14 @@ namespace DMB0001v4.Skills
         /// <summary>
         /// Current top id.
         /// </summary>
-        private int _maxId;
+        //private int _maxId;
+        private DaIndex _daIndex;
+        /// <summary>
+        /// Returns current top value of ids.
+        /// </summary>
+        /// <returns>top id</returns>
+        public uint MaxId() => _daIndex.Current;
+
         /// <summary>
         /// File's fille path with items.
         /// </summary>
@@ -60,10 +68,12 @@ namespace DMB0001v4.Skills
             // Convert it to lower case
             given = given.ToLower();
             // Try to add it
-            return Add(new Unknown {Id = NextMaxId(), Question = given, Count = 1})
+            return Add(new Unknown {Id = _daIndex.Next(), Question = given, Count = 1})
                 ? "I would like to know, how to answer that.."
                 : null;
         }
+
+        uint ISkillWithList<Unknown>.Count => (uint)(_items != null ? _items.Count : 0);
 
         /// <summary>
         /// Adds item to list with previous check, if a-like item already exists. If it exists, it just updates occurance counter of item.
@@ -91,7 +101,7 @@ namespace DMB0001v4.Skills
             else
             {
                 // Fix id, if already occured
-                if (item.Id < MaxId()) item.Id = NextMaxId();
+                if (item.Id < MaxId()) item.Id = _daIndex.Next();
                 // Fix count, as the item is new
                 item.Count = 1;
             }
@@ -131,7 +141,7 @@ namespace DMB0001v4.Skills
                 foreach (var item in items)
                 {
                     // Ids to following max ids
-                    item.Id = NextMaxId();
+                    item.Id = _daIndex.Next();
                     // Fix count to 1
                     item.Count = 1;
                 }
@@ -326,7 +336,7 @@ namespace DMB0001v4.Skills
         /// </summary>
         /// <param name="id">given id</param>
         /// <returns>list of  occurances, if exist, empty list otherwise</returns>
-        public List<Unknown> Occurances(int id)
+        public List<Unknown> Occurances(uint id)
             => _items.Where(k => k.Id == id).ToList();
 
         /// <summary>
@@ -334,7 +344,7 @@ namespace DMB0001v4.Skills
         /// </summary>
         /// <param name="ids">given ids</param>
         /// <returns></returns>
-        public List<Unknown> Occurances(List<int> ids)
+        public List<Unknown> Occurances(List<uint> ids)
         {
             // Check entry params
             if (ids == null || ids.Count == 0) return new List<Unknown>();
@@ -367,9 +377,9 @@ namespace DMB0001v4.Skills
         /// <summary>
         /// Returns a single element with given id.
         /// </summary>
-        /// <param name="key">given id</param>
+        /// <param name="key">an id</param>
         /// <returns>element, if found, null otherwise</returns>
-        public Unknown Get(int key) => _items.Find(x => x.Id.Equals(key));
+        public Unknown Get(uint key) => _items.Find(x => x.Id == key);
 
         /// <summary>
         /// Returns a single element with given question.
@@ -386,7 +396,7 @@ namespace DMB0001v4.Skills
         /// </summary>
         /// <param name="keys">given ids</param>
         /// <returns>items, if found. empty list otherwise</returns>
-        public List<Unknown> GetAll(List<int> keys) => keys != null && keys.Count != 0 ? _items.FindAll(r => keys.Contains(r.Id)) : new List<Unknown>();
+        public List<Unknown> GetAll(List<uint> keys) => keys != null && keys.Count != 0 ? _items.FindAll(r => keys.Contains(r.Id)) : new List<Unknown>();
 
         /// <summary>
         /// Sorts items by id.
@@ -445,7 +455,7 @@ namespace DMB0001v4.Skills
         /// </summary>
         /// <param name="key">given key</param>
         /// <returns>true means change, false otherwise</returns>
-        public bool Remove(int key)
+        public bool Remove(uint key)
         {
             // Check entry param
             if (key < 1) return false;
@@ -468,7 +478,7 @@ namespace DMB0001v4.Skills
         /// </summary>
         /// <param name="keys">given list of keys</param>
         /// <returns>true means change, false otherwise</returns>
-        public bool RemoveAll(List<int> keys)
+        public bool RemoveAll(List<uint> keys)
         {
             // Check entry params
             if (keys == null || keys.Count == 0) return false;
@@ -494,7 +504,7 @@ namespace DMB0001v4.Skills
         /// <param name="key">given id</param>
         /// <param name="item">given item</param>
         /// <returns></returns>
-        public bool Update(int key, Unknown item)
+        public bool Update(uint key, Unknown item)
         {
             // Check entry param
             if (item == null || string.IsNullOrWhiteSpace(item.Question)) return false;
@@ -516,19 +526,16 @@ namespace DMB0001v4.Skills
         /// <summary>
         /// Finds the highest id from items.
         /// </summary>
-        public void FixMaxId() => _maxId = _items != null ? _items.Select(t => t.Id).OrderByDescending(t => t).FirstOrDefault() : 1;
-
-        /// <summary>
-        /// Returns current top value of ids.
-        /// </summary>
-        /// <returns>top id</returns>
-        public int MaxId() => _maxId;
-
-        /// <summary>
-        /// Returns next top value of ids.
-        /// </summary>
-        /// <returns>next top id</returns>
-        public int NextMaxId() => ++_maxId;
+        public void FixMaxId()
+        {
+            var countedtop = (uint)(_items != null ? _items.Select(t => t.Id).OrderByDescending(t => t).FirstOrDefault() : 0);
+            if (countedtop != 0) {
+                List<uint> used = _items != null ? _items.Select(t => t.Id).OrderByDescending(t => t).ToList() : new List<uint>();
+                _daIndex.MarkUseds(used);
+            } else {
+                _daIndex.Zero();
+            }
+        }
 
         /// <summary>
         /// Clears pool of kept instances.
@@ -539,18 +546,14 @@ namespace DMB0001v4.Skills
         /// Returns flag, if unknowns set is empty.
         /// </summary>
         /// <returns>true means empty, false otherwise</returns>
-        public bool IsEmpty() => Count== 0;
+        public bool IsEmpty() {
+            return ((_items ?? new List<Unknown>()).Count) == 0;
+        }
 
         /// <summary>
         /// Gives short description about the skill, what it does.
         /// </summary>
         /// <returns>short description</returns>
         public string About => "Represents collection of unknown queries (those unaswered yet).";
-
-        /// <summary>
-        /// Returns count of kept items.
-        /// </summary>
-        /// <returns>Count of items</returns>
-        public int Count => _items != null ? _items.Count : 0;
     }
 }

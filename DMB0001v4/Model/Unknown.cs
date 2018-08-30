@@ -2,9 +2,9 @@
 {
     public class Unknown
     {
-        public int Id { get; set; }
+        public uint Id { get; set; }
         public string Question { get; set; }
-        public int Count { get; set; }
+        public uint Count { get; set; }
         //public DateTime LastMod { get; set; }
 
         // Returns concatenated form of unknown to list it.
