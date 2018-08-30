@@ -111,7 +111,7 @@ namespace DMB0001v4.Skills
         private SkillFactory() => AssureSkills();
 
         /// <summary>
-        /// Assures, that skillset will be initialized.
+        /// Assures, that skill set will be initialized.
         /// </summary>
         private void AssureSkills()
         {
@@ -126,12 +126,12 @@ namespace DMB0001v4.Skills
         /// <returns>response, if some responded, null otherwise</returns>
         public string Process(string toProcess)
         {
-            //
+            // Check entry param
             if (string.IsNullOrWhiteSpace(toProcess)) return null;
-            //
+            // Prepare response
             string response = null;
             // Loop through all known skills, until some will respond.
-            foreach (KeyValuePair<string, ISkill> skill in _skills)
+            foreach (var skill in _skills)
             {
                 response = skill.Value.Process(toProcess);
                 // If responded, stop looping

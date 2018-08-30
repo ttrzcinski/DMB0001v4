@@ -145,7 +145,7 @@ namespace Units.UnitTests.Skills
         public void ClearCountAfterInitTest()
         {
             // Arrange
-            var expected = 0;
+            const uint expected = 0;
             var brainState = new BrainState();
             _provider.Setup(p => p.GetConversationState<BrainState>(_context.Object))
                 .Returns(brainState);
@@ -159,7 +159,7 @@ namespace Units.UnitTests.Skills
             Assert.Equal(expected, actual);
         }
 
-        // TODO Cover Count after load
+        // Cover Count after load
         [Fact]
         public void ClearCountAfterLoadTest()
         {

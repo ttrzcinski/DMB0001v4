@@ -49,7 +49,7 @@ namespace DMB0001v4.Skills
         /// <summary>
         /// File's file path with items.
         /// </summary>
-        public const string _fileFullPath = "C:\\vsproj\\DMB0001v4\\DMB0001v4\\DMB0001v4\\Resources\\unknowns.json";
+        public string _fileFullPath;
 
         /// <summary>
         /// Locks files changing - usable in tests.
@@ -73,8 +73,6 @@ namespace DMB0001v4.Skills
                 : null;
         }
 
-        uint ISkillWithList<Unknown>.Count => (uint)(_items?.Count ?? 0);
-
         /// <summary>
         /// Adds item to list with previous check, if a-like item already exists. If it exists, it just updates occurance counter of item.
         /// </summary>
@@ -87,7 +85,7 @@ namespace DMB0001v4.Skills
             // Stash a backup
             StashList();
             // Check if question exists, if element exists and should be updated or it should be added
-            List<Unknown> repetitions = Occurances(item);
+            List<Unknown> repetitions = Occurrences(item);
             if (repetitions.Count > 0)
             {
                 // Copy old values
@@ -211,6 +209,8 @@ namespace DMB0001v4.Skills
         /// </summary>
         public void LoadList()
         {
+            // Assert filepath
+            AssureFilePath();
             // Add check, if file exists to make a backup
             if (FileUtils.AssureFile(_fileFullPath))
             {
@@ -223,6 +223,15 @@ namespace DMB0001v4.Skills
                     FixMaxId();
                 }
             }
+        }
+
+        /// <summary>
+        /// Assures filepath to default, if not set.
+        /// </summary>
+        private void AssureFilePath()
+        {
+            if (string.IsNullOrWhiteSpace(_fileFullPath))
+                _fileFullPath = FileUtils.ResourcesCatalog() + "unknowns.json";
         }
 
         /// <summary>
@@ -263,11 +272,13 @@ namespace DMB0001v4.Skills
         public bool Persist()
         {
             // If file lock is ON, skip making new files.
-            if (ReadOnlyFile == true) return true;
-            // Prepare result var
-            bool commit = false;
+            if (ReadOnlyFile) return true;
+            // Assert filepath
+            AssureFilePath();
             // Add check, if file exists to make a backup
             if (!FileUtils.AssureFile(_fileFullPath)) return false;
+            // Prepare result var
+            var commit = false;
             // Backup items in order not to do something funky with data
             if (Backup())
             {
@@ -279,7 +290,7 @@ namespace DMB0001v4.Skills
                     var json = JsonConvert.SerializeObject(_items, Formatting.Indented);
                     file.Write(json);
                 }
-                // Fix id as it might've changed
+                // Fix id as it might have changed
                 FixMaxId();
                 // Mark success
                 commit = true;
@@ -301,6 +312,8 @@ namespace DMB0001v4.Skills
         {
             // If file lock is ON, skip making new files.
             if (ReadOnlyFile) return true;
+            // Assert filepath
+            AssureFilePath();
             // Check inner param
             if (string.IsNullOrWhiteSpace(_fileFullPath)) return false;
             // Prepare catalog for the backup with backup name
@@ -314,11 +327,11 @@ namespace DMB0001v4.Skills
         }
 
         /// <summary>
-        /// Returns all occurances of items with questions of given item.
+        /// Returns all occurrences of items with questions of given item.
         /// </summary>
         /// <param name="item"></param>
-        /// <returns>list of  occurances, if exist, empty list otherwise</returns>
-        public List<Unknown> Occurances(Unknown item)
+        /// <returns>list of  occurrences, if exist, empty list otherwise</returns>
+        public List<Unknown> Occurrences(Unknown item)
             => item == null || string.IsNullOrWhiteSpace(item.Question)
                 ? new List<Unknown>()
                 : _items.Where(k => k.Question.Equals(item.Question, StringComparison.OrdinalIgnoreCase)).ToList();
@@ -327,24 +340,24 @@ namespace DMB0001v4.Skills
         /// 
         /// </summary>
         /// <param name="question"></param>
-        /// <returns>list of  occurances, if exist, empty list otherwise</returns>
-        public List<Unknown> Occurances(string question)
+        /// <returns>list of  occurrences, if exist, empty list otherwise</returns>
+        public List<Unknown> Occurrences(string question)
             => _items.Where(k => k.Question.Equals(question, StringComparison.OrdinalIgnoreCase)).ToList();
 
         /// <summary>
-        /// Returns all occurances of items with given id.
+        /// Returns all occurrences of items with given id.
         /// </summary>
         /// <param name="id">given id</param>
-        /// <returns>list of  occurances, if exist, empty list otherwise</returns>
-        public List<Unknown> Occurances(uint id)
+        /// <returns>list of  occurrences, if exist, empty list otherwise</returns>
+        public List<Unknown> Occurrences(uint id)
             => _items.Where(k => k.Id == id).ToList();
 
         /// <summary>
-        /// Returns all occurances of items with given ids.
+        /// Returns all occurrences of items with given ids.
         /// </summary>
         /// <param name="ids">given ids</param>
         /// <returns></returns>
-        public List<Unknown> Occurances(List<uint> ids)
+        public List<Unknown> Occurrences(List<uint> ids)
         {
             // Check entry params
             if (ids == null || ids.Count == 0) return new List<Unknown>();
@@ -353,11 +366,11 @@ namespace DMB0001v4.Skills
         }
 
         /// <summary>
-        /// Returns all occurances of items with given questions.
+        /// Returns all occurrences of items with given questions.
         /// </summary>
         /// <param name="questions">given questions</param>
         /// <returns></returns>
-        public List<Unknown> Occurances(List<string> questions)
+        public List<Unknown> Occurrences(List<string> questions)
         {
             // Check entry params
             if (questions == null || questions.Count == 0) return new List<Unknown>();
@@ -439,7 +452,7 @@ namespace DMB0001v4.Skills
             // Stash a backup
             StashList();
             // Check if question exists, if element exists and should be updated or it should be added
-            List<Unknown> repetitions = Occurances(item);
+            List<Unknown> repetitions = Occurrences(item);
             if (repetitions.Count > 0)
             {
                 // Remove all repetitions from kept list of items
@@ -462,7 +475,7 @@ namespace DMB0001v4.Skills
             // Stash a backup
             StashList();
             // Check if question exists, if element exists
-            List<Unknown> repetitions = Occurances(key);
+            List<Unknown> repetitions = Occurrences(key);
             if (repetitions.Count > 0)
             {
                 // Remove all repetitions from kept list of items
@@ -482,24 +495,21 @@ namespace DMB0001v4.Skills
         {
             // Check entry params
             if (keys == null || keys.Count == 0) return false;
+            // Check if items with given keys exist
+            var repetitions = Occurrences(keys);
             // Stash a backup
             StashList();
-            // Check if items with given keys exist
-            List<Unknown> repetitions = Occurances(keys);
-            if (repetitions.Count > 0)
-            {
-                // Remove all repetitions from kept list of items
-                foreach (var item in repetitions)
-                {
-                    _items.RemoveAll(x => (x.Id == item.Id || x.Question.ToLower() == item.Question.ToLower()));
-                }
-            }
+            // Stop, if there are no repetitions
+            if (repetitions.Count == 0) return false;
+            // Remove all repetitions from kept list of items
+            foreach (var item in repetitions)
+                _items.RemoveAll(x => (x.Id == item.Id || x.Question.ToLower() == item.Question.ToLower()));
             // If persisted, commit, else rollback
             return Persist();
         }
 
         /// <summary>
-        /// Updates every occurance of given id with given item.
+        /// Updates every occurrence of given id with given item.
         /// </summary>
         /// <param name="key">given id</param>
         /// <param name="item">given item</param>
@@ -508,19 +518,14 @@ namespace DMB0001v4.Skills
         {
             // Check entry param
             if (item == null || string.IsNullOrWhiteSpace(item.Question)) return false;
+            // Check if element to update even exists
+            if (Occurrences(key).Count == 0) return false;
             // Stash a backup
             StashList();
-            // Prepare return falg
-            bool result = false;
-            // Check if question exists, if element exists and should be updated or it should be added
-            List<Unknown> repetitions = Occurances(key);
-            if (repetitions.Count > 0)
-            {
-                _items.Where(x => x.Id == key).Select(x => x.Question = item.Question).ToList();
-                // If persisted, commit, else rollback
-                result = Persist();
-            }
-            return result;
+            // Update those items
+            _items.Where(x => x.Id == key).Select(y => { y.Question = item.Question;y.Count = item.Count;return y; });
+            // If persisted, commit, else rollback
+            return Persist();
         }
 
         /// <summary>
@@ -528,9 +533,8 @@ namespace DMB0001v4.Skills
         /// </summary>
         public void FixMaxId()
         {
-            var countedtop = (uint)(_items != null ? _items.Select(t => t.Id).OrderByDescending(t => t).FirstOrDefault() : 0);
-            if (countedtop != 0) {
-                List<uint> used = _items != null ? _items.Select(t => t.Id).OrderByDescending(t => t).ToList() : new List<uint>();
+            if ((uint)(_items?.Select(t => t.Id).OrderByDescending(t => t).FirstOrDefault() ?? 0) != 0) {
+                var used = _items != null ? _items.Select(t => t.Id).OrderByDescending(t => t).ToList() : new List<uint>();
                 _daIndex.MarkUseds(used);
             } else {
                 _daIndex.Zero();
@@ -541,6 +545,11 @@ namespace DMB0001v4.Skills
         /// Clears pool of kept instances.
         /// </summary>
         public void Clear() => (_items ?? new List<Unknown>()).Clear();
+        
+        /// <summary>
+        /// Returns current count of items in the list.
+        /// </summary>
+        public uint Count => (uint)(_items?.Count ?? 0);
 
         /// <summary>
         /// Returns flag, if unknowns set is empty.

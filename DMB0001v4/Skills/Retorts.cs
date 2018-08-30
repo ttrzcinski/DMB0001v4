@@ -401,6 +401,11 @@ namespace DMB0001v4.Skills
         /// Holds index for this skill.
         /// </summary>
         private static DaIndex _daIndex;
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
+        public uint MaxId() => _daIndex.Current;
 
         /// <summary>
         /// Blocked empty constructors - this skills is a snigleton.
@@ -590,7 +595,7 @@ namespace DMB0001v4.Skills
         /// Returns count of kept retorts.
         /// </summary>
         /// <returns>Count of retorts</returns>
-        public int Count => _items?.Count ?? 0;
+        public uint Count => (uint)(_items?.Count ?? 0);
 
         /// <summary>
         /// Returns flag, if unknowns set is empty.
@@ -601,16 +606,7 @@ namespace DMB0001v4.Skills
         /// <summary>
         /// Finds the highest id from items.
         /// </summary>
-        public void FixMaxId()
-        {
-            //var countedTop = (uint)(_items != null ? _items.Select(t => t.Id).OrderByDescending(t => t).FirstOrDefault() : 1);
-            var used = _items != null ? _items.Select(t => t.Id).OrderByDescending(t => t).ToList() : new List<uint>();
-            _daIndex.MarkUseds(used);
-        }
-
-        public uint MaxId() => _daIndex.Current;
-
-        uint ISkillWithList<Retort>.Count => (uint)Count;
+        public void FixMaxId() => _daIndex.MarkUseds(_items?.Select(t => t.Id).OrderByDescending(t => t).ToList() ?? new List<uint>());
 
         /// <summary>
         /// Gives short description about the skill, what it does.
