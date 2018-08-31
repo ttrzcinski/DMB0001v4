@@ -515,13 +515,7 @@ namespace DMB0001v4.Skills
         /// <summary>
         /// Clears pool of kept instances.
         /// </summary>
-        public void Clear()
-        {
-            if (_items != null)
-                _items.Clear();
-            else
-                InitItems();
-        }
+        public void Clear() => (_items ?? new List<Retort>()).Clear();
 
         /// <summary>
         /// Makes backup copy of current list of items.

@@ -49,7 +49,7 @@ namespace DMB0001v4.Skills
         /// <summary>
         /// File's file path with items.
         /// </summary>
-        public string _fileFullPath;
+        public string _fileFullPath { get; set; };
 
         /// <summary>
         /// Locks files changing - usable in tests.
@@ -74,7 +74,7 @@ namespace DMB0001v4.Skills
         }
 
         /// <summary>
-        /// Adds item to list with previous check, if a-like item already exists. If it exists, it just updates occurance counter of item.
+        /// Adds item to list with previous check, if a-like item already exists. If it exists, it just updates occurence counter of item.
         /// </summary>
         /// <param name="item">an item to add</param>
         /// <returns>true, if changed, false otherwise</returns>
