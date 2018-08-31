@@ -23,7 +23,7 @@ namespace DMB0001v4.Structures
         /// <summary>
         /// Locks files changing - usable in tests.
         /// </summary>
-        public static bool ReadOnlyFile { get; set; }
+        public bool ReadOnlyFile { get; set; }
         /// <summary>
         /// File's file path with items.
         /// </summary>
@@ -36,7 +36,7 @@ namespace DMB0001v4.Structures
         /// <summary>
         /// Holds index for this skill.
         /// </summary>
-        private static DaIndex _daIndex;
+        private DaIndex _daIndex;
 
         /// <summary>
         /// 
@@ -61,6 +61,7 @@ namespace DMB0001v4.Structures
             if (item == null) return false;
             // Stash a backup
             StashList();
+
             // Add fixed item to list
             _items.Add(_daIndex.Next(), item);
             // If persisted, commit, else rollback
@@ -179,15 +180,6 @@ namespace DMB0001v4.Structures
         }
 
         /// <summary>
-        /// Assures filepath to default, if not set.
-        /// </summary>
-        private void AssureFilePath()
-        {
-            if (string.IsNullOrWhiteSpace(_fileFullPath))
-                _fileFullPath = FileUtils.ResourcesCatalog() + $"{this.GetType().Name}.json";// TODO check, if it get right type-name
-        }
-
-        /// <summary>
         /// Reverts local changes in kept list of items.
         /// </summary>
         private void Rollback()
@@ -234,8 +226,16 @@ namespace DMB0001v4.Structures
                 Console.WriteLine($"Rollback. - Couldn't persist a change in {this.GetType().Name}. ");
                 Rollback();
             }
-
             return commit;
+        }
+
+        /// <summary>
+        /// Assures filepath to default, if not set.
+        /// </summary>
+        private void AssureFilePath()
+        {
+            if (string.IsNullOrWhiteSpace(_fileFullPath))
+                _fileFullPath = FileUtils.ResourcesCatalog() + $"{this.GetType().Name}.json";// TODO check, if it get right type-name
         }
 
         /// <summary>
@@ -287,15 +287,11 @@ namespace DMB0001v4.Structures
         /// </summary>
         public void FixMaxId()
         {
-            var topId = (uint) (_items != null ? _items.Keys.Aggregate((l,r) => l > r ? 1 : r) : 0);
+            var topId = _items?.Keys.Max() ?? 0;//Aggregate((l, r) => l > r ? 1 : r) ?? 0;
             if (topId != 0)
-            {
                 _daIndex.MarkUseds(_items.Keys.ToList());
-            }
             else
-            {
                 _daIndex.Zero();
-            }
         }
 
         /// <summary>

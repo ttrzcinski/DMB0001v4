@@ -4,9 +4,9 @@ namespace DMB0001v4.Structures
 {
     public class Item
     {
-        private ulong id { get; }
-        private DateTime Created { get; }
-        private DateTime Modified { get; set; }
-        private bool active { get; set; }
+        public ulong Id { get; private set; }
+        public DateTime Created { get; private set; }
+        public DateTime Modified { get; set; }
+        public bool Active { get; set; }
     }
 }

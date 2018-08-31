@@ -49,7 +49,7 @@ namespace DMB0001v4.Skills
         /// <summary>
         /// File's file path with items.
         /// </summary>
-        public string _fileFullPath { get; set; };
+        public string _fileFullPath { get; set; }
 
         /// <summary>
         /// Locks files changing - usable in tests.
